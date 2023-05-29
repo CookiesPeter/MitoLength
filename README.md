@@ -1,5 +1,6 @@
 # MitoLength (With TrackMate 7)
 Tested under anaconda package.
+Please pass Trackmate TRACK data into this program.
 
 H2B-GFP serves as a marker for DNA condensation and has been used as an marker for cell cycle progression.
 When DNA condenses, H2B-GFP signals also concentrates and can be captured as an increase of the standard deviation of the signal.
