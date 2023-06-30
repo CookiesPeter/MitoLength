@@ -25,7 +25,7 @@ def detect_local_minima_before_peaks(signal, peak_indices):
         local_minima.append((local_min_index, local_min_value))
     return local_minima
 
-df=pd.read_csv('export.csv')
+df=pd.read_csv('export(5).csv')
 
 #Drop some useless labels
 df.drop(index = df.index[0:3],axis=0,inplace=True)
@@ -43,8 +43,14 @@ ind=1
 writer.writerow(head)
 file.close()
 
+skip=int(input('please indicate the track Id you wanna skip to:'))
+
 #Search unique TRACK ID
 for id in df.index.unique():
+    
+    if id < skip:
+        continue
+
     newdf=df.loc[id,['FRAME','STD_INTENSITY_CH1']].sort_values(by='FRAME',ascending=True)
     x = newdf.STD_INTENSITY_CH1.values.astype(float)
     
@@ -95,7 +101,7 @@ for id in df.index.unique():
             end = input("Error. Please input an INTEGER: ")
         else:
             end=int(end)
-
+        
         Manual_Start_list.append(start)
         Manual_End_list.append(end)
 
@@ -113,8 +119,12 @@ for id in df.index.unique():
     plt.plot(peaks,yy[peaks],'o',label='Peak') #peak dots
     #plt.hlines(*width[1:], color="C2")
     plt.title('TRACK '+ str(id))
-    plt.plot(start,x[start],'s',label='Manual Start')
-    plt.plot(end,x[end],'^',label='Manual end')
+    try:
+        plt.plot(start,x[start],'s',label='Manual Start')
+        plt.plot(end,x[end],'^',label='Manual end')
+    except:
+        print('error.Skipping.')
+        continue
     ax.legend()
     plt.savefig('Track ID '+str(id))
     plt.show()
