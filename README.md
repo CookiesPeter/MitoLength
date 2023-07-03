@@ -5,7 +5,8 @@ Tested under Anaconda package.
 	How to use:
 	Trackmate
 	Please pass Trackmate TRACK data into this program.
-	This program extracts the standard deviation and frame data from Trackmate TRACK csv file. Please export the csv file into the same folder as this program, renamed as 'export.csv'. Please make sure the H2B-GFP channel is as CH1.
+	This program extracts the standard deviation and frame data from Trackmate TRACK csv file. 
+ 	Please export the csv file into the same folder as this program, renamed as 'export.csv'. Please make sure the H2B-GFP channel is as CH1.
 	
 	After such run the program and it generates two types of files:
 	1. Plotted images of each tracks, with identified peaks
