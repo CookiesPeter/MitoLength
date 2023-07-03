@@ -59,7 +59,7 @@ falsepositive=0
 miss_count = 0
 file=open('Results.csv','a',newline='')
 writer=csv.writer(file)
-head=['Index','TrackID','#splits','Start','end','manualstart','manualend','false+?','false+ count','missed peak start','missed peak end','missed count']
+head=['Index','TrackID','#splits','Start','end','manualstart','manualend','false+?','accumulated false+ count','missed peak start','missed peak end','accumulated missed count']
 writer.writerow(head)
 file.close()
 
@@ -163,7 +163,7 @@ for id in df.index.unique():
 
         #plot curve
         plt.plot(x,label='Raw Curve')
-        plt.plot(yy,label='Smoothened Curve') #smooth
+        plt.plot(yy,label='Smoothened Curve')
 
         #plot dots, including false positive ones
         for local_min in local_minima:
@@ -172,8 +172,8 @@ for id in df.index.unique():
             plt.plot(peaks,yy[peaks],'o',label='Algorithm end',color='red')
 
         #add vertical lines indicating the manual start and end
-            plt.axvline(manualstart,linestyle='--',label='Manual Start',color='green')
-            plt.axvline(manualend,linestyle='--',label='Manual end',color='red')
+            plt.axvline(manualstart,linestyle='--',label='Manual Start',color='lightgreen')
+            plt.axvline(manualend,linestyle='--',label='Manual end',color='lightcoral')
 
         #show plot
         ax.legend()
@@ -203,8 +203,8 @@ for id in df.index.unique():
                 index,values = local_min
                 plt.plot(index,values,'x',label='Algorithm start',color='green')
                 plt.plot(peaks,yy[peaks],'o',label='Algorithm end',color='red')
-                plt.axvline(manualstart,linestyle='--',label='Manual Start',color='green')
-                plt.axvline(manualend,linestyle='--',label='Manual end',color='red')
+                plt.axvline(manualstart,linestyle='--',label='Manual Start',color='lightgreen')
+                plt.axvline(manualend,linestyle='--',label='Manual end',color='lightcoral')
                 plt.axvline(miss_start,linestyle='--',label='Missing manual Start',color='darkgreen')
                 plt.axvline(miss_end,linestyle='--',label='Missing manual end',color='darkred')
             ax.legend()
@@ -233,6 +233,8 @@ file=open('Results.csv','a',newline='')
 
 #linear regression of starting point
 data_start =pd.DataFrame({'manual_start':Manual_Start_list,'Algo_start':Algorithm_Start_list})
+data_falsepos_start=pd.DataFrame({'Falsepos_start':Falsepost_Start_list,'zero':np.zeros(falsepositive)})
+#
 data_manual_start=np.array(data_start['manual_start']).reshape((-1,1))
 data_algo_start=np.array(data_start['Algo_start'])
 regr_start=LinearRegression()
@@ -244,8 +246,8 @@ print(f"R^2:{regr_start.score(data_manual_start,data_algo_start)}")
 
 
 plt.scatter(data_start['manual_start'],data_start['Algo_start'])
-plt.scatter(0,Falsepos_Start_list,label='False Positives',color='red')
-plt.scatter(Missed_Start_list,0,label='Missed',color='orange')
+#plt.scatter(0,Falsepos_Start_list,label='False Positives',color='red')
+#plt.scatter(Missed_Start_list,0,label='Missed',color='orange')
 plt.plot(data_start['manual_start'],regr_start.predict(np.array(data_start['manual_start']).reshape((-1,1))),color ='red')
 plt.title('Linear Regression of Starting Point')
 larger=np.maximum(np.max(Manual_Start_list),np.max(Algorithm_Start_list))
@@ -256,6 +258,8 @@ plt.legend()
 plt.show()
 
 data_end=pd.DataFrame({'manual_end':Manual_End_list,'Algo_end':Algorithm_End_list})
+#
+#
 data_manual_end=np.array(data_end['manual_end']).reshape((-1,1))
 data_algo_end=np.array(data_end['Algo_end'])
 regr_end=LinearRegression()
@@ -265,8 +269,8 @@ print(f"coeffcient: {regr_end.coef_}")
 print(f"R^2:{regr_end.score(data_manual_end,data_algo_end)}")
 
 plt.scatter(data_end['manual_end'],data_end['Algo_end'])
-plt.scatter(0,Falsepos_End_list,label='False Positives',color='red')
-plt.scatter(Missed_End_list,0,label='Missed',color='orange')
+#plt.scatter(0,Falsepos_End_list,label='False Positives',color='red')
+#plt.scatter(Missed_End_list,0,label='Missed',color='orange')
 plt.plot(data_end['manual_end'],regr_end.predict(np.array(data_end['manual_end']).reshape((-1,1))),color ='red')
 plt.title('Linear Regression of Ending Point')
 larger=np.maximum(np.max(Manual_End_list),np.max(Algorithm_End_list))
