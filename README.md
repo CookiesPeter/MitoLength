@@ -12,8 +12,4 @@ Tested under Anaconda package.
 	2. csv file for all the recorded events of cell division. Appended after everytime the program runs. 
  	Does not overwrite old file. Users can take this for calculations of mitotic length, number of cell split etc.
 
-H2B-GFP is a genetically-encoded fluorescent protein that can be used as a marker to track the progression of cells through the cell cycle. Specifically, H2B-GFP is fused to histone H2B, which is a protein that is involved in packaging DNA into chromatin within the nucleus. During the cell cycle, the chromatin undergoes a series of changes that are reflected in the behavior of H2B-GFP.
-		
-For example, during the S-phase of the cell cycle, when DNA replication occurs, the amount of H2B-GFP in the nucleus increases as the chromatin is duplicated. During the G2-phase, H2B-GFP remains in the nucleus but becomes more diffuse as the chromatin condenses in preparation for cell division. Finally, during mitosis, H2B-GFP becomes highly condensed and is visible as distinct spots within the nucleus.
-		
-By tracking the behavior of H2B-GFP over time, researchers can gain insights into the timing and progression of the cell cycle in different cell types and under different experimental conditions.
+H2B-GFP is a genetically-encoded fluorescent protein that can be used as a marker to track the progression of cells through the cell cycle. Specifically, H2B-GFP is fused to histone H2B, which is a protein that is involved in packaging DNA into chromatin within the nucleus. During the cell cycle, the chromatin undergoes a series of changes that are reflected in the behavior of H2B-GFP. During mitosis, H2B-GFP becomes highly condensed and is visible as distinct spots within the nucleus.		 By tracking the behavior of H2B-GFP over time, researchers can gain insights into the timing and progression of the cell cycle in different cell types and under different experimental conditions.
