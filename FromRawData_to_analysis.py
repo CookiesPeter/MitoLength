@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy.signal import argrelextrema, find_peaks, filtfilt, butter
 from matplotlib import pyplot as plt
-from sklearn.linear_model import LinearRegression #import Linear Package
+from sklearn.linear_model import LinearRegression
 import csv
 
 #Create list for data
@@ -38,6 +38,7 @@ def checkyn(yn):
     else:
         return yn
 
+#data import and tidying
 df=pd.read_csv('export.csv')
 
 #Drop some useless labels
@@ -48,26 +49,30 @@ df.set_index('TRACK_ID',inplace=True)
 df.index = df.index.astype(int) 
 df.FRAME= df.FRAME.astype(int)
 
-#open a csv file
+#append/start a csv file, set initial indices, add a header
+ind=1
+falsepositive=0
+miss_count = 0
 file=open('Results.csv','a',newline='')
 writer=csv.writer(file)
-head=['Index','TrackID','#splits','Start','end','manualstart','manualend','false+ count','missed count']
-ind=1
+head=['Index','TrackID','#splits','Start','end','manualstart','manualend','false+?','false+ count','missed peak start','missed peak end','missed count']
 writer.writerow(head)
 file.close()
 
+#add a cheat code
 skip=int(input('please indicate the track Id you wanna skip to:'))
-falsepositive=0
 
 #Search unique TRACK ID
 for id in df.index.unique():
-    
+
+    #skip code
     if id < skip:
         continue
 
+    #obtain Frame, Std data, sort from a specific track ID
     newdf=df.loc[id,['FRAME','STD_INTENSITY_CH1']].sort_values(by='FRAME',ascending=True)
     x = newdf.STD_INTENSITY_CH1.values.astype(float)
-    
+
     #Screen for tracks with length more than 50 frames
     if len(x) <50:
          continue
@@ -86,121 +91,130 @@ for id in df.index.unique():
     
     #Find local maximum with smoothened curve
     local_minima = detect_local_minima_before_peaks(x, peaks)
-    #Record Algorithm Starting Point and Ending Point
+    
+    #Record Algorithm Starting Points and Ending Points
     if len(peaks)==len(local_minima):
         for i in range(len(peaks)):
             Algorithm_End_list.append(peaks[i])
             Algorithm_Start_list.append(local_minima[i][0])
     else:
         continue
+        
     #give up if total frame less than 30
-    if np.max(newdf.FRAME.values)<30:
-        continue
+    #if np.max(newdf.FRAME.values)<30:
+        #continue
 
     #getting user input for counting
     for local_min in local_minima:
         index,values = local_min
-        x = x.astype(float)
+
+        #add curve
         plt.plot(x,label='Raw Curve')
         plt.plot(yy,label='Smoothened Curve')
+
+        #add algorithm dots
         plt.plot(index,values,'x',label='Algorithm start',color='green')
-        plt.plot(peaks,yy[peaks],'o',label='Algorithm end',color='red') #peak dots
+        plt.plot(peaks,yy[peaks],'o',label='Algorithm end',color='red') 
+
+        #preliminarily show plot
         plt.title('TRACK '+ str(id))
         plt.show(block=False)
+        
+        #ask for user input
+        skip=False
         prescence=input('Do you see a peak near to computer? Please type y or n.\n')
         prescence=checkyn(prescence)
-        skip=False
         if prescence == 'y':   
-            manualstart=input("the TrackID is " + str(id) + ". Please input the starting point you count.\n")
+            manualstart=input("the TrackID is " + str(id) + ". Please input the manual starting point.\n")
             manualstart = checkdigit(manualstart)
-            manualend=input("the TrackID is " + str(id) + ". What is the end point?\n")
+            manualend=input("the TrackID is " + str(id) + ". What is the manual end point?\n")
             manualend = checkdigit(manualend)
-            
+
+            #add to regression list
             Manual_Start_list.append(manualstart)
             Manual_End_list.append(manualend)
         elif prescence == 'n':
-            falsepositive = falsepositive+1
+            falsepositive = falsepositive + 1
             skip = True
             continue
-    plt.close()
 
+    #skip showing plot if false positive
     if skip is True:
         print('Sad but next.')
         continue
 
-    #show graph
+    #show entire track
     while True:
-        x = x.astype(float)
         fig, ax =plt.subplots() #curve
+
+        #set label
         ax.set_xlabel('Frames')
         ax.set_ylabel('Signal Standard deviation')
         ax.set_title('SD trend of Track: '+str(id))
-        #plot
+
+        #make a limit to frame number
+        plt.xlim(left=np.min(newdf.FRAME.values),right=np.max(newdf.FRAME.values))
+
+        #plot curve
         plt.plot(x,label='Raw Curve')
         plt.plot(yy,label='Smoothened Curve') #smooth
-        #define limits
-        plt.xlim(left=np.min(newdf.FRAME.values),right=np.max(newdf.FRAME.values))
+
+        #plot dots, including false positive ones
         for local_min in local_minima:
             index,values = local_min
             plt.plot(index,values,'x',label='Algorithm start',color='green')
-            plt.plot(peaks,yy[peaks],'o',label='Algorithm end',color='red') #peak dots
-        #plt.hlines(*width[1:], color="C2")
-        plt.title('TRACK '+ str(id))
-        try:
+            plt.plot(peaks,yy[peaks],'o',label='Algorithm end',color='red')
+
+        #add vertical lines indicating the manual start and end
             plt.axvline(manualstart,linestyle='--',label='Manual Start',color='green')
             plt.axvline(manualend,linestyle='--',label='Manual end',color='red')
-        except:
-            print('error.Skipping.')
-            break
+
+        #show plot
         ax.legend()
         plt.show(block=False)
 
-        miss_count = 0
+        #check if there is missed
         miss=input('Any peak missing?Input y or n.\n')
         miss=checkyn(miss)
         if miss == 'y':
             miss_count = miss_count+1
-            miss_start=input("the TrackID is " + str(id) + ". Please input the missing starting point you count.\n")
+            miss_start=input("the TrackID is " + str(id) + ". Please input the missing starting point.\n")
             miss_start = checkdigit(miss_start)
             miss_end=input("the TrackID is " + str(id) + ". What is the missing end point?\n")
             miss_end = checkdigit(miss_end)
+
+            #displays final graph
             fig, ax =plt.subplots() #curve
             ax.set_xlabel('Frames')
             ax.set_ylabel('Signal Standard deviation')
             ax.set_title('SD trend of Track: '+str(id))
-            #plot
             plt.plot(x,label='Raw Curve')
             plt.plot(yy,label='Smoothened Curve') #smooth
-            #define limits
             plt.xlim(left=np.min(newdf.FRAME.values),right=np.max(newdf.FRAME.values))
             for local_min in local_minima:
                 index,values = local_min
                 plt.plot(index,values,'x',label='Algorithm start',color='green')
-                plt.plot(peaks,yy[peaks],'o',label='Algorithm end',color='red') #peak dots
-            #plt.hlines(*width[1:], color="C2")
-            plt.title('TRACK '+ str(id))
-            try:
+                plt.plot(peaks,yy[peaks],'o',label='Algorithm end',color='red')
                 plt.axvline(manualstart,linestyle='--',label='Manual Start',color='green')
                 plt.axvline(manualend,linestyle='--',label='Manual end',color='red')
                 plt.axvline(miss_start,linestyle='--',label='Missing manual Start',color='darkgreen')
                 plt.axvline(miss_end,linestyle='--',label='Missing manual end',color='darkred')
-            except:
-                print('error.Skipping.')
-                break
             ax.legend()
             plt.savefig('Track ID '+str(id))
             plt.show()
             break
+            
         if miss =='n':
             print('Great! Next.\n')
             plt.savefig('Track ID '+str(id))
             plt.close()
             break
+            
     for fr_peaks in peaks:
         file=open('Results.csv','a',newline='')
         writer=csv.writer(file)
-        Append=[[str(ind),str(id),str(len(peaks)),str(index),str(fr_peaks),str(manualstart),str(manualend),falsepositive,miss_count]]
         ind=ind+1
+        Append=[[str(ind),str(id),str(len(peaks)),str(index),str(fr_peaks),str(manualstart),str(manualend),skip,falsepositive,miss_start,miss_end,miss_count]]
         writer.writerows(Append)
     file.close()
 
