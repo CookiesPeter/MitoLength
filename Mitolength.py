@@ -10,6 +10,10 @@ Manual_Start_list=[]
 Manual_End_list=[]
 Algorithm_Start_list=[]
 Algorithm_End_list=[]
+Falsepos_Start_list=[]
+Falsepose_End_list=[]
+Missed_Start_list=[]
+Missed_End_list=[]
 
 #define local minima before peak
 def detect_local_minima_before_peaks(signal, peak_indices):
@@ -135,6 +139,8 @@ for id in df.index.unique():
             Manual_End_list.append(manualend)
         elif prescence == 'n':
             falsepositive = falsepositive + 1
+            Falsepos_Start_list.append(index)
+            Falsepos_End_list.append(peaks)
             skip = True
             continue
 
@@ -182,6 +188,8 @@ for id in df.index.unique():
             miss_start = checkdigit(miss_start)
             miss_end=input("the TrackID is " + str(id) + ". What is the missing end point?\n")
             miss_end = checkdigit(miss_end)
+            Missed_Start_list.append(miss_start)
+            Missed_End_list.append(miss_end)
 
             #displays final graph
             fig, ax =plt.subplots() #curve
@@ -234,7 +242,10 @@ print(f"intercept: {regr_start.intercept_}")
 print(f"coeffcient: {regr_start.coef_}")
 print(f"R^2:{regr_start.score(data_manual_start,data_algo_start)}")
 
+
 plt.scatter(data_start['manual_start'],data_start['Algo_start'])
+plt.scatter(0,Falsepos_Start_list,label='False Positives',color='red')
+plt.scatter(Missed_Start_list,0,label='Missed',color='orange')
 plt.plot(data_start['manual_start'],regr_start.predict(np.array(data_start['manual_start']).reshape((-1,1))),color ='red')
 plt.title('Linear Regression of Starting Point')
 larger=np.maximum(np.max(Manual_Start_list),np.max(Algorithm_Start_list))
@@ -252,7 +263,10 @@ regr_end.fit(data_manual_end,data_algo_end)
 print(f"intercept:{regr_end.intercept_}")
 print(f"coeffcient: {regr_end.coef_}")
 print(f"R^2:{regr_end.score(data_manual_end,data_algo_end)}")
+
 plt.scatter(data_end['manual_end'],data_end['Algo_end'])
+plt.scatter(0,Falsepos_End_list,label='False Positives',color='red')
+plt.scatter(Missed_End_list,0,label='Missed',color='orange')
 plt.plot(data_end['manual_end'],regr_end.predict(np.array(data_end['manual_end']).reshape((-1,1))),color ='red')
 plt.title('Linear Regression of Ending Point')
 larger=np.maximum(np.max(Manual_End_list),np.max(Algorithm_End_list))
