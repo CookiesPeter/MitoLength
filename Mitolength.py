@@ -11,9 +11,10 @@ Manual_End_list=[]
 Algorithm_Start_list=[]
 Algorithm_End_list=[]
 Falsepos_Start_list=[]
-Falsepose_End_list=[]
+Falsepos_End_list=[]
 Missed_Start_list=[]
 Missed_End_list=[]
+
 
 #define local minima before peak
 def detect_local_minima_before_peaks(signal, peak_indices):
@@ -43,7 +44,7 @@ def checkyn(yn):
         return yn
 
 #data import and tidying
-df=pd.read_csv('export.csv')
+df=pd.read_csv('export(5).csv')
 
 #Drop some useless labels
 df.drop(index = df.index[0:3],axis=0,inplace=True)
@@ -54,12 +55,12 @@ df.index = df.index.astype(int)
 df.FRAME= df.FRAME.astype(int)
 
 #append/start a csv file, set initial indices, add a header
-ind=1
+ind=0
 falsepositive=0
 miss_count = 0
 file=open('Results.csv','a',newline='')
 writer=csv.writer(file)
-head=['Index','TrackID','#splits','Start','end','manualstart','manualend','false+?','accumulated false+ count','missed peak start','missed peak end','accumulated missed count']
+head=['Index','TrackID','#splits','Algorithm Start','Algorithm End','Manual Start','Manual End','false+?','accumulated false+ count','missed peak start','missed peak end','accumulated missed count']
 writer.writerow(head)
 file.close()
 
@@ -181,7 +182,9 @@ for id in df.index.unique():
 
         #check if there is missed
         miss=input('Any peak missing?Input y or n.\n')
-        miss=checkyn(miss)
+        miss=checkyn(miss)0
+        miss_start=None
+        miss_end=None
         if miss == 'y':
             miss_count = miss_count+1
             miss_start=input("the TrackID is " + str(id) + ". Please input the missing starting point.\n")
@@ -226,15 +229,17 @@ for id in df.index.unique():
         writer.writerows(Append)
     file.close()
 
-file=open('Results.csv','a',newline='')
-        writer=csv.writer(file)
-        writer.writerows('Falsepositive starts)
-    file.close()
-
 #linear regression of starting point
-data_start =pd.DataFrame({'manual_start':Manual_Start_list,'Algo_start':Algorithm_Start_list})
-data_falsepos_start=pd.DataFrame({'Falsepos_start':Falsepost_Start_list,'zero':np.zeros(falsepositive)})
-#
+All_start_list_manual=Manual_Start_list+len(Falsepos_Start_list)*[0]+Missed_Start_list
+All_end_list_manual=Manual_End_list+len(Falsepos_End_list)*[0]+Missed_End_list
+All_start_list_alg=Algorithm_Start_list+Falsepos_Start_list+len(Missed_Start_list)*[0]
+All_end_list_alg=Algorithm_End_list+Falsepos_End_list+len(Missed_End_list)*[0]
+colors=["blue"]*len(Manual_End_list)+["green"]*len(Falsepos_End_list)+["yellow"]*len(Missed_End_list)
+
+
+
+
+data_start =pd.DataFrame({'manual_start':All_start_list_manual,'Algo_start':All_start_list_alg})
 data_manual_start=np.array(data_start['manual_start']).reshape((-1,1))
 data_algo_start=np.array(data_start['Algo_start'])
 regr_start=LinearRegression()
@@ -244,22 +249,13 @@ print(f"intercept: {regr_start.intercept_}")
 print(f"coeffcient: {regr_start.coef_}")
 print(f"R^2:{regr_start.score(data_manual_start,data_algo_start)}")
 
-
-plt.scatter(data_start['manual_start'],data_start['Algo_start'])
-#plt.scatter(0,Falsepos_Start_list,label='False Positives',color='red')
-#plt.scatter(Missed_Start_list,0,label='Missed',color='orange')
+plt.scatter(data_start['manual_start'],data_start['Algo_start'],c=colors)
 plt.plot(data_start['manual_start'],regr_start.predict(np.array(data_start['manual_start']).reshape((-1,1))),color ='red')
 plt.title('Linear Regression of Starting Point')
-larger=np.maximum(np.max(Manual_Start_list),np.max(Algorithm_Start_list))
-plt.xlim(0,larger)
-plt.ylim(0,larger)
-plt.axline( (0,0),slope=1,linestyle='--',color='grey',label='y=x')
-plt.legend()
 plt.show()
 
-data_end=pd.DataFrame({'manual_end':Manual_End_list,'Algo_end':Algorithm_End_list})
-#
-#
+
+data_end=pd.DataFrame({'manual_end':All_end_list_manual,'Algo_end':All_end_list_alg})
 data_manual_end=np.array(data_end['manual_end']).reshape((-1,1))
 data_algo_end=np.array(data_end['Algo_end'])
 regr_end=LinearRegression()
@@ -267,15 +263,7 @@ regr_end.fit(data_manual_end,data_algo_end)
 print(f"intercept:{regr_end.intercept_}")
 print(f"coeffcient: {regr_end.coef_}")
 print(f"R^2:{regr_end.score(data_manual_end,data_algo_end)}")
-
-plt.scatter(data_end['manual_end'],data_end['Algo_end'])
-#plt.scatter(0,Falsepos_End_list,label='False Positives',color='red')
-#plt.scatter(Missed_End_list,0,label='Missed',color='orange')
+plt.scatter(data_end['manual_end'],data_end['Algo_end'],c=colors)
 plt.plot(data_end['manual_end'],regr_end.predict(np.array(data_end['manual_end']).reshape((-1,1))),color ='red')
 plt.title('Linear Regression of Ending Point')
-larger=np.maximum(np.max(Manual_End_list),np.max(Algorithm_End_list))
-plt.xlim(0,larger)
-plt.ylim(0,larger)
-plt.axline( (0,0),slope=1,linestyle='--',color='grey',label='y=x')
-plt.legend()
 plt.show()
