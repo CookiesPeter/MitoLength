@@ -15,7 +15,6 @@ Falsepos_End_list=[]
 Missed_Start_list=[]
 Missed_End_list=[]
 
-
 #define local minima before peak
 def detect_local_minima_before_peaks(signal, peak_indices):
     local_minima = []
@@ -44,7 +43,7 @@ def checkyn(yn):
         return yn
 
 #data import and tidying
-df=pd.read_csv('export(5).csv')
+df=pd.read_csv('export.csv')
 
 #Drop some useless labels
 df.drop(index = df.index[0:3],axis=0,inplace=True)
@@ -87,8 +86,8 @@ for id in df.index.unique():
     yy= filtfilt(b,a,x)
 
     #find peaks (dynamic peak here??)
-    #threshold = float(np.max(yy))*0.75
-    peaks,_ = find_peaks(yy,height=300,distance=60,prominence=10)
+    threshold = np.quantile(yy,0.75)
+    peaks,_ = find_peaks(yy,height=threshold,distance=60)
 
     #give up if no peaks identified
     if not peaks.size:
@@ -130,6 +129,7 @@ for id in df.index.unique():
             manualstart = checkdigit(manualstart)
             manualend=input("the TrackID is " + str(id) + ". What is the manual end point?\n")
             manualend = checkdigit(manualend)
+            plt.close()
 
             #add to regression list
             Manual_Start_list.append(manualstart)
@@ -139,11 +139,13 @@ for id in df.index.unique():
             Falsepos_Start_list.append(index)
             Falsepos_End_list.append(peaks)
             skip = True
+            plt.close()
             continue
 
     #skip showing plot if false positive
     if skip is True:
         print('Sad but next.')
+        plt.close()
         continue
 
     #show entire track
@@ -178,7 +180,7 @@ for id in df.index.unique():
 
         #check if there is missed
         miss=input('Any peak missing?Input y or n.\n')
-        miss=checkyn(miss)0
+        miss=checkyn(miss)
         miss_start=None
         miss_end=None
         if miss == 'y':
@@ -208,7 +210,7 @@ for id in df.index.unique():
                 plt.axvline(miss_end,linestyle='--',label='Missing manual end',color='darkred')
             ax.legend()
             plt.savefig('Track ID '+str(id))
-            plt.show()
+            plt.show(block=True)
             break
             
         if miss =='n':
