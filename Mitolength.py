@@ -104,10 +104,6 @@ for id in df.index.unique():
             Algorithm_Start_list.append(local_minima[i][0])
     else:
         continue
-        
-    #give up if total frame less than 30
-    #if np.max(newdf.FRAME.values)<30:
-        #continue
 
     #getting user input for counting
     for local_min in local_minima:
@@ -236,9 +232,6 @@ All_start_list_alg=Algorithm_Start_list+Falsepos_Start_list+len(Missed_Start_lis
 All_end_list_alg=Algorithm_End_list+Falsepos_End_list+len(Missed_End_list)*[0]
 colors=["blue"]*len(Manual_End_list)+["green"]*len(Falsepos_End_list)+["yellow"]*len(Missed_End_list)
 
-
-
-
 data_start =pd.DataFrame({'manual_start':All_start_list_manual,'Algo_start':All_start_list_alg})
 data_manual_start=np.array(data_start['manual_start']).reshape((-1,1))
 data_algo_start=np.array(data_start['Algo_start'])
@@ -253,7 +246,6 @@ plt.scatter(data_start['manual_start'],data_start['Algo_start'],c=colors)
 plt.plot(data_start['manual_start'],regr_start.predict(np.array(data_start['manual_start']).reshape((-1,1))),color ='red')
 plt.title('Linear Regression of Starting Point')
 plt.show()
-
 
 data_end=pd.DataFrame({'manual_end':All_end_list_manual,'Algo_end':All_end_list_alg})
 data_manual_end=np.array(data_end['manual_end']).reshape((-1,1))
