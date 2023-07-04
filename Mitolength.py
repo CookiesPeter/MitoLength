@@ -4,6 +4,9 @@ from scipy.signal import argrelextrema, find_peaks, filtfilt, butter
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LinearRegression
 import csv
+import czifile as cz
+import xml.etree.ElementTree as ET
+
 
 #Create list for data
 Manual_Start_list=[]
@@ -16,16 +19,17 @@ Missed_Start_list=[]
 Missed_End_list=[]
 
 #define local minima before peak
-def detect_local_minima_before_peaks(signal, peak_indices):
+def detect_local_minima_before_peaks(signal, peak_indices,htres):
     local_minima = []
     for peak_index in peak_indices:
         before_peak = signal[:peak_index]
+        before_peak = before_peak[before_peak < htres]
         local_min_index = argrelextrema(before_peak,np.less)[0]
         if not local_min_index.any():
             continue
-        #print(local_min_index)
         local_min_index = local_min_index[-1]
         local_min_value = before_peak[local_min_index]
+        print(local_min_index,local_min_value)
         local_minima.append((local_min_index, local_min_value))
     return local_minima
 #define digit error
@@ -42,6 +46,13 @@ def checkyn(yn):
     else:
         return yn
 
+#get metadata from czi
+xml_metadata = cz.CziFile('raw data and manual counted/Test data.czi').metadata()
+root = ET.fromstring(xml_metadata)
+for val in root.findall('.//Distance[@Id="X"]/Value'):
+    pixel_size_in_meters=float(val.text)
+    pixel_size_in_microns = float(pixel_size_in_meters)*1000000000
+
 #data import and tidying
 df=pd.read_csv('export.csv')
 
@@ -52,6 +63,13 @@ df.drop(index = df.index[0:3],axis=0,inplace=True)
 df.set_index('TRACK_ID',inplace=True)
 df.index = df.index.astype(int) 
 df.FRAME= df.FRAME.astype(int)
+df.POSITION_X = df.POSITION_X.astype(float)
+df.POSITION_Y = df.POSITION_Y.astype(float)
+
+#set bound
+bound = pixel_size_in_microns-10
+df = df.drop(df[(df.POSITION_X < 10) & (df.POSITION_X > bound)].index)
+df = df.drop(df[(df.POSITION_Y < 10) & (df.POSITION_Y > bound)].index)
 
 #append/start a csv file, set initial indices, add a header
 ind=0
@@ -64,10 +82,14 @@ writer.writerow(head)
 file.close()
 
 #add a cheat code
-skip=int(input('please indicate the track Id you wanna skip to:'))
+skip=int(input('Please indicate the track Id you wanna skip to:'))
 
 #Search unique TRACK ID
 for id in df.index.unique():
+
+    #reset
+    manualstart = None
+    manualend = None
 
     #skip code
     if id < skip:
@@ -85,17 +107,21 @@ for id in df.index.unique():
     b, a = butter(8, 0.125,analog=False)
     yy= filtfilt(b,a,x)
 
-    #find peaks (dynamic peak here??)
-    threshold = np.quantile(yy,0.75)
-    peaks,_ = find_peaks(yy,height=threshold,distance=60)
+    #find peaks and threshold
+    threshold = np.maximum(np.quantile(yy,0.95),np.mean(yy))
+    xthreshold = np.quantile(x,0.95)
+    peaks,_ = find_peaks(yy,height=threshold,distance=60,prominence=20)
 
     #give up if no peaks identified
     if not peaks.size:
             continue
+    #give up if median is above mean
+    if np.median(yy) > np.mean(yy):
+        continue
     
     #Find local maximum with smoothened curve
-    local_minima = detect_local_minima_before_peaks(x, peaks)
-    
+    local_minima = detect_local_minima_before_peaks(x, peaks,xthreshold)
+
     #Record Algorithm Starting Points and Ending Points
     if len(peaks)==len(local_minima):
         for i in range(len(peaks)):
@@ -115,6 +141,9 @@ for id in df.index.unique():
         #add algorithm dots
         plt.plot(index,values,'x',label='Algorithm start',color='green')
         plt.plot(peaks,yy[peaks],'o',label='Algorithm end',color='red') 
+        plt.axhline(y=threshold, color='r', linestyle='-')
+        plt.axhline(y=np.mean(yy), color='b', linestyle='-')
+        plt.axhline(y=np.quantile(yy,0.5),color='g',linestyle = '-')
 
         #preliminarily show plot
         plt.title('TRACK '+ str(id))
@@ -129,7 +158,6 @@ for id in df.index.unique():
             manualstart = checkdigit(manualstart)
             manualend=input("the TrackID is " + str(id) + ". What is the manual end point?\n")
             manualend = checkdigit(manualend)
-            plt.close()
 
             #add to regression list
             Manual_Start_list.append(manualstart)
@@ -156,9 +184,6 @@ for id in df.index.unique():
         ax.set_xlabel('Frames')
         ax.set_ylabel('Signal Standard deviation')
         ax.set_title('SD trend of Track: '+str(id))
-
-        #make a limit to frame number
-        plt.xlim(left=np.min(newdf.FRAME.values),right=np.max(newdf.FRAME.values))
 
         #plot curve
         plt.plot(x,label='Raw Curve')
@@ -198,8 +223,7 @@ for id in df.index.unique():
             ax.set_ylabel('Signal Standard deviation')
             ax.set_title('SD trend of Track: '+str(id))
             plt.plot(x,label='Raw Curve')
-            plt.plot(yy,label='Smoothened Curve') #smooth
-            plt.xlim(left=np.min(newdf.FRAME.values),right=np.max(newdf.FRAME.values))
+            plt.plot(yy,label='Smoothened Curve')
             for local_min in local_minima:
                 index,values = local_min
                 plt.plot(index,values,'x',label='Algorithm start',color='green')
@@ -220,7 +244,7 @@ for id in df.index.unique():
             break
             
     for fr_peaks in peaks:
-        file=open('Results.csv','a',newline='')
+        file=open('result.csv','a',newline='')
         writer=csv.writer(file)
         ind=ind+1
         Append=[[str(ind),str(id),str(len(peaks)),str(index),str(fr_peaks),str(manualstart),str(manualend),skip,falsepositive,miss_start,miss_end,miss_count]]
@@ -228,16 +252,14 @@ for id in df.index.unique():
     file.close()
 
 #linear regression of starting point
-
 All_start_list_manual=Manual_Start_list+len(Falsepos_Start_list)*[0]+Missed_Start_list
 All_end_list_manual=Manual_End_list+len(Falsepos_End_list)*[0]+Missed_End_list
-All_start_list_alg=Algorithm_Start_list+Falsepos_Start_list+len(Missed_Start_list)*[0]
-All_end_list_alg=Algorithm_End_list+Falsepos_End_list+len(Missed_End_list)*[0]
+All_start_list_alg=Algorithm_Start_list+len(Missed_Start_list)*[0]
+All_end_list_alg=Algorithm_End_list+len(Missed_End_list)*[0]
 colors=["blue"]*len(Manual_End_list)+["green"]*len(Falsepos_End_list)+["yellow"]*len(Missed_End_list)
 
-
-
-
+print(All_start_list_manual)
+print(All_start_list_alg)
 data_start =pd.DataFrame({'manual_start':All_start_list_manual,'Algo_start':All_start_list_alg})
 data_manual_start=np.array(data_start['manual_start']).reshape((-1,1))
 data_algo_start=np.array(data_start['Algo_start'])
@@ -248,17 +270,10 @@ print(f"intercept: {regr_start.intercept_}")
 print(f"coeffcient: {regr_start.coef_}")
 print(f"R^2:{regr_start.score(data_manual_start,data_algo_start)}")
 
-
-
 plt.scatter(data_start['manual_start'],data_start['Algo_start'],c=colors)
-plt.plot(data_start['manual_start'],regr_start.predict(np.array(data_start['manual_start']).reshape((-1,1))),color ='red',label=
-         f"R^2:{regr_start.score(data_manual_start,data_algo_start)}\ncoeffcient: {regr_start.coef_}\nintercept: {regr_start.intercept_}")
-plt.xlabel("Manual Starting Data in Frame(10min gap)")
-plt.ylabel('Algorithm Starting Data in Frame(10min gap)')
+plt.plot(data_start['manual_start'],regr_start.predict(np.array(data_start['manual_start']).reshape((-1,1))),color ='red')
 plt.title('Linear Regression of Starting Point')
-plt.legend()
 plt.show()
-
 
 data_end=pd.DataFrame({'manual_end':All_end_list_manual,'Algo_end':All_end_list_alg})
 data_manual_end=np.array(data_end['manual_end']).reshape((-1,1))
@@ -269,9 +284,6 @@ print(f"intercept:{regr_end.intercept_}")
 print(f"coeffcient: {regr_end.coef_}")
 print(f"R^2:{regr_end.score(data_manual_end,data_algo_end)}")
 plt.scatter(data_end['manual_end'],data_end['Algo_end'],c=colors)
-plt.plot(data_end['manual_end'],regr_end.predict(np.array(data_end['manual_end']).reshape((-1,1))),color ='red',label=f"R^2:{regr_end.score(data_manual_end,data_algo_end)}\ncoeffecient:{regr_end.coef_}\nintercept:{regr_end.intercept_}")
+plt.plot(data_end['manual_end'],regr_end.predict(np.array(data_end['manual_end']).reshape((-1,1))),color ='red')
 plt.title('Linear Regression of Ending Point')
-plt.xlabel("Manual Starting Data in Frame(10min gap)")
-plt.ylabel('Algorithm Starting Data in Frame(10min gap)')
-plt.legend()
 plt.show()
