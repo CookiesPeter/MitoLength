@@ -228,11 +228,15 @@ for id in df.index.unique():
     file.close()
 
 #linear regression of starting point
+
 All_start_list_manual=Manual_Start_list+len(Falsepos_Start_list)*[0]+Missed_Start_list
 All_end_list_manual=Manual_End_list+len(Falsepos_End_list)*[0]+Missed_End_list
 All_start_list_alg=Algorithm_Start_list+Falsepos_Start_list+len(Missed_Start_list)*[0]
 All_end_list_alg=Algorithm_End_list+Falsepos_End_list+len(Missed_End_list)*[0]
 colors=["blue"]*len(Manual_End_list)+["green"]*len(Falsepos_End_list)+["yellow"]*len(Missed_End_list)
+
+
+
 
 data_start =pd.DataFrame({'manual_start':All_start_list_manual,'Algo_start':All_start_list_alg})
 data_manual_start=np.array(data_start['manual_start']).reshape((-1,1))
@@ -244,10 +248,17 @@ print(f"intercept: {regr_start.intercept_}")
 print(f"coeffcient: {regr_start.coef_}")
 print(f"R^2:{regr_start.score(data_manual_start,data_algo_start)}")
 
+
+
 plt.scatter(data_start['manual_start'],data_start['Algo_start'],c=colors)
-plt.plot(data_start['manual_start'],regr_start.predict(np.array(data_start['manual_start']).reshape((-1,1))),color ='red')
+plt.plot(data_start['manual_start'],regr_start.predict(np.array(data_start['manual_start']).reshape((-1,1))),color ='red',label=
+         f"R^2:{regr_start.score(data_manual_start,data_algo_start)}\ncoeffcient: {regr_start.coef_}\nintercept: {regr_start.intercept_}")
+plt.xlabel("Manual Starting Data in Frame(10min gap)")
+plt.ylabel('Algorithm Starting Data in Frame(10min gap)')
 plt.title('Linear Regression of Starting Point')
+plt.legend()
 plt.show()
+
 
 data_end=pd.DataFrame({'manual_end':All_end_list_manual,'Algo_end':All_end_list_alg})
 data_manual_end=np.array(data_end['manual_end']).reshape((-1,1))
@@ -258,6 +269,9 @@ print(f"intercept:{regr_end.intercept_}")
 print(f"coeffcient: {regr_end.coef_}")
 print(f"R^2:{regr_end.score(data_manual_end,data_algo_end)}")
 plt.scatter(data_end['manual_end'],data_end['Algo_end'],c=colors)
-plt.plot(data_end['manual_end'],regr_end.predict(np.array(data_end['manual_end']).reshape((-1,1))),color ='red')
+plt.plot(data_end['manual_end'],regr_end.predict(np.array(data_end['manual_end']).reshape((-1,1))),color ='red',label=f"R^2:{regr_end.score(data_manual_end,data_algo_end)}\ncoeffecient:{regr_end.coef_}\nintercept:{regr_end.intercept_}")
 plt.title('Linear Regression of Ending Point')
+plt.xlabel("Manual Starting Data in Frame(10min gap)")
+plt.ylabel('Algorithm Starting Data in Frame(10min gap)')
+plt.legend()
 plt.show()
