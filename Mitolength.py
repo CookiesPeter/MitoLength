@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from scipy.signal import argrelextrema, find_peaks, filtfilt, butter
+from scipy.signal import argrelextrema, find_peaks, filtfilt, butter, peak_prominences
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LinearRegression
 import csv
@@ -108,19 +108,18 @@ for id in df.index.unique():
     yy= filtfilt(b,a,x)
 
     #find peaks and threshold
-    threshold = np.maximum(np.quantile(yy,0.95),np.mean(yy))
-    xthreshold = np.quantile(x,0.95)
-    peaks,_ = find_peaks(yy,height=threshold,distance=60,prominence=20)
+    threshold = np.maximum(200,np.quantile(yy,0.85))
+    peaks,_ = find_peaks(yy,height=threshold,distance=60,prominence=100)
 
     #give up if no peaks identified
     if not peaks.size:
             continue
     #give up if median is above mean
-    if np.median(yy) > np.mean(yy):
-        continue
+    #if np.median(yy) > np.mean(yy):
+        #continue
     
     #Find local maximum with smoothened curve
-    local_minima = detect_local_minima_before_peaks(x, peaks,xthreshold)
+    local_minima = detect_local_minima_before_peaks(x, peaks,np.quantile(x,0.95))
 
     #Record Algorithm Starting Points and Ending Points
     if len(peaks)==len(local_minima):
@@ -141,9 +140,12 @@ for id in df.index.unique():
         #add algorithm dots
         plt.plot(index,values,'x',label='Algorithm start',color='green')
         plt.plot(peaks,yy[peaks],'o',label='Algorithm end',color='red') 
-        plt.axhline(y=threshold, color='r', linestyle='-')
-        plt.axhline(y=np.mean(yy), color='b', linestyle='-')
-        plt.axhline(y=np.quantile(yy,0.5),color='g',linestyle = '-')
+        #plt.axhline(y=threshold, color='r', linestyle='-')
+        #plt.axhline(y=np.mean(yy), color='b', linestyle='-')
+        #plt.axhline(y=np.quantile(yy,0.5),color='g',linestyle = '-')
+        #prominences= peak_prominences(yy,peaks)[0]
+        #contour_heights = yy[peaks] - prominences
+        #plt.vlines(x=peaks, ymin=contour_heights, ymax=yy[peaks])
 
         #preliminarily show plot
         plt.title('TRACK '+ str(id))
