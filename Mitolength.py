@@ -7,7 +7,6 @@ import csv
 import czifile as cz
 import xml.etree.ElementTree as ET
 
-'hello'
 #Create list for data
 Manual_Start_list=[]
 Manual_End_list=[]
