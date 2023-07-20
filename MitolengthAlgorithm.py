@@ -52,7 +52,7 @@ falsepositive=0
 miss_count = 0
 file = open('Results.csv','a',newline='')
 writer=csv.writer(file)
-head=['Index','TrackID','#splits','Algorithm Start','Algorithm End']
+head=['Index','TrackID','#splits','Algorithm Start','Algorithm End','Prominences','Adaptive Threshold']
 writer.writerow(head)
 file.close()
 
@@ -90,14 +90,15 @@ for id in df.index.unique():
         #continue
     
     #Find local maximum with smoothened curve
-    local_minima = detect_local_minima_before_peaks(x, peaks,np.quantile(x,0.95))'
-    
-    for peakpair in local_minima:
+    local_minima = detect_local_minima_before_peaks(x, peaks,np.quantile(x,0.95))
+    prominences= peak_prominences(yy,peaks)[0]
+
+    for i,peakpair in enumerate(local_minima):
         ((index,values),peakss) = peakpair
         file =open('Results.csv','a',newline='')
         writer=csv.writer(file)
         ind=ind+1
-        Append=[[str(ind),str(id),str(len(peaks)),str(index),str(peakss)]]
+        Append=[[str(ind),str(id),str(len(peaks)),str(index),str(peakss),str(prominences[i]),str(np.quantile(x,0.95))]]
         writer.writerows(Append)
         file.close()
 
@@ -111,9 +112,8 @@ for id in df.index.unique():
     #plt.axhline(y=threshold, color='r', linestyle='-')
     #plt.axhline(y=np.mean(yy), color='b', linestyle='-')
     #plt.axhline(y=np.quantile(yy,0.5),color='g',linestyle = '-')
-    #prominences= peak_prominences(yy,peaks)[0]
-    #contour_heights = yy[peaks] - prominences
-    #plt.vlines(x=peaks, ymin=contour_heights, ymax=yy[peaks])
+    contour_heights = yy[peaks] - prominences
+    plt.vlines(x=peaks, ymin=contour_heights, ymax=yy[peaks],color='orange',label='Prominences')
 
     #preliminarily show plot
     plt.title('TRACK '+ str(id))
