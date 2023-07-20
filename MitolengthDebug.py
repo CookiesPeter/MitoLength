@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy.signal import argrelextrema, find_peaks, filtfilt, butter, peak_prominences
 from matplotlib import pyplot as plt
+from sklearn.linear_model import LinearRegression
 import csv
 import czifile as cz
 import xml.etree.ElementTree as ET
@@ -21,6 +22,48 @@ def detect_local_minima_before_peaks(signal, peak_indices,htres):
         local_minima.append(((local_min_index, local_min_value),peak_index))
     return local_minima
 
+#define linear regression list
+def linearR(All_start_list_alg,All_end_list_alg,All_start_list_manual,All_end_list_manual):
+    data_start =pd.DataFrame({'manual_start':All_start_list_manual,'Algo_start':All_start_list_alg})
+    data_manual_start=np.array(data_start['manual_start']).reshape((-1,1))
+    data_algo_start=np.array(data_start['Algo_start'])
+    regr_start=LinearRegression()
+    regr_start.fit(data_manual_start,data_algo_start)
+    print(f"intercept: {regr_start.intercept_}")
+    print(f"coeffcient: {regr_start.coef_}")
+    print(f"R^2:{regr_start.score(data_manual_start,data_algo_start)}")
+    plt.scatter(data_start['manual_start'],data_start['Algo_start'])
+    plt.plot(data_start['manual_start'],regr_start.predict(np.array(data_start['manual_start']).reshape((-1,1))),color ='red',label=
+            f"R^2:{regr_start.score(data_manual_start,data_algo_start)}\ncoeffcient: {regr_start.coef_}\nintercept: {regr_start.intercept_}")
+    plt.xlabel("Manual Starting Data in Frame(10min gap)")
+    plt.ylabel('Algorithm Starting Data in Frame(10min gap)')
+    plt.title('Linear Regression of Starting Point')
+    plt.legend()
+    plt.show()
+    data_end=pd.DataFrame({'manual_end':All_end_list_manual,'Algo_end':All_end_list_alg})
+    data_manual_end=np.array(data_end['manual_end']).reshape((-1,1))
+    data_algo_end=np.array(data_end['Algo_end'])
+    regr_end=LinearRegression()
+    regr_end.fit(data_manual_end,data_algo_end)
+    print(f"intercept:{regr_end.intercept_}")
+    print(f"coeffcient: {regr_end.coef_}")
+    print(f"R^2:{regr_end.score(data_manual_end,data_algo_end)}")
+    plt.scatter(data_end['manual_end'],data_end['Algo_end'],c=colors)
+    plt.plot(data_end['manual_end'],regr_end.predict(np.array(data_end['manual_end']).reshape((-1,1))),color ='red',label=f"R^2:{regr_end.score(data_manual_end,data_algo_end)}\ncoeffecient:{regr_end.coef_}\nintercept:{regr_end.intercept_}")
+    plt.title('Linear Regression of Ending Point')
+    plt.xlabel("Manual Starting Data in Frame(10min gap)")
+    plt.ylabel('Algorithm Starting Data in Frame(10min gap)')
+    plt.legend()
+    plt.show()
+
+#Actaul start
+
+#create dict
+Algorithm_Start_list=[]
+Algorithm_End_list=[]
+Manual_Start_list=[]
+Manual_End_list=[]
+
 #get metadata from czi
 xml_metadata = cz.CziFile('raw data and manual counted/Test data.czi').metadata()
 root = ET.fromstring(xml_metadata)
@@ -32,6 +75,7 @@ for val in root.findall('.//Distance[@Id="X"]/Value'):
 filepath=tk.askopenfilenames(title='Please select the csv file from TrackMate.',filetypes=(('Csv','*.csv'),('All files','*')))
 
 df=pd.read_csv(filepath[0])
+df2=pd.read_csv('Debugging Materials/Manual_Data_Collection.(1).xlsx')
 
 #Drop some useless labels
 df.drop(index = df.index[0:3],axis=0,inplace=True)
@@ -132,3 +176,5 @@ for id in df.index.unique():
     #plt.savefig('Track ID '+str(id))
     plt.close()
     print('Track'+str(id))
+    
+print(Algorithm_End_list)
