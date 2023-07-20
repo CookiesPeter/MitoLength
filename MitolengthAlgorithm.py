@@ -2,10 +2,10 @@ import pandas as pd
 import numpy as np
 from scipy.signal import argrelextrema, find_peaks, filtfilt, butter, peak_prominences
 from matplotlib import pyplot as plt
-from sklearn.linear_model import LinearRegression
 import csv
 import czifile as cz
 import xml.etree.ElementTree as ET
+import tkinter.filedialog as tk
 
 #define local minima before peak
 def detect_local_minima_before_peaks(signal, peak_indices,htres):
@@ -29,7 +29,9 @@ for val in root.findall('.//Distance[@Id="X"]/Value'):
     pixel_size_in_microns = float(pixel_size_in_meters)*1000000000
 
 #data import and tidying
-df=pd.read_csv('export.csv')
+filepath=tk.askopenfilenames(title='Please select the csv file from TrackMate.',filetypes=(('Csv','*.csv'),('All files','*')))
+
+df=pd.read_csv(filepath[0])
 
 #Drop some useless labels
 df.drop(index = df.index[0:3],axis=0,inplace=True)
