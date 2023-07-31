@@ -42,7 +42,7 @@ def plot3d(X,Y,Z,Title):
     plt.show()
 
 #get metadata from czi
-xml_metadata = cz.CziFile("C:/Users/Ludwig.Qi/Desktop/POON Lab first analysis/Testing Single Sample/230414_LK_MH_PF_AcquisitionBlock3_pt3-Scene-26-P1-C05.czi").metadata()
+xml_metadata = cz.CziFile("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#2/raw data/LCI230606_MHLKSH-6_AcquisitionBlock1_pt1-Scene-31-P4-A06111.czi").metadata()
 root = ET.fromstring(xml_metadata)
 for val in root.findall('.//Distance[@Id="X"]/Value'):
     pixel_size_in_meters=float(val.text)
@@ -64,10 +64,8 @@ df.POSITION_Y = df.POSITION_Y.astype(float)
 
 #set bound
 bound = pixel_size_in_microns-10
-df.drop(df[df.POSITION_X < 10].index,axis=0,inplace=True)
-df.drop(df[df.POSITION_X > bound].index,axis=0,inplace=True)
-df.drop(df[df.POSITION_Y < 10].index,axis=0,inplace=True)
-df.drop(df[df.POSITION_Y > bound].index,axis=0,inplace=True)
+df = df.drop(df[(df.POSITION_X < 10) & (df.POSITION_X > bound)].index)
+df = df.drop(df[(df.POSITION_Y < 10) & (df.POSITION_Y > bound)].index)
 
 #set initial indices
 ind=0
@@ -101,7 +99,7 @@ for freq in range(5,10,1):
 
             #obtain Frame, Std data, sort from a specific track ID
             newdf=df.loc[id,['FRAME','STD_INTENSITY_CH1']].sort_values(by='FRAME',ascending=True)
-            dfm=pd.read_excel("Debugging Materials/Manual_Data_Collection.xlsx")
+            dfm=pd.read_excel("C:\\Users\\Ludwig.Qi\\Desktop\\POON Lab first analysis\\Testing Single Sample\\Manual_Data_Collection..xlsx")
             manualdata=dfm.loc[id]
             x = newdf.STD_INTENSITY_CH1.values.astype(float)
 
@@ -116,15 +114,20 @@ for freq in range(5,10,1):
             #Smoothening the curve by filtfilt
             yy=butter_lowpass_filtfilt(x,fre=freq/10)
             #find peaks and threshold
-            peaks,_ = find_peaks(yy,distance=60,prominence=promnum)
+            threshold = np.maximum(200,np.quantile(yy,qnum/100))
+            peaks,_ = find_peaks(yy,height=threshold,distance=60,prominence=promnum)
             
+
             #give up if no peaks identified
-            if not peaks.size:
+            if not peaks:
                 if manualdata["MS1"]!="None" and manualdata["MS2"]=="None":
                     miss_count=miss_count+1
                 if manualdata["MS1"]!="None" and manualdata["MS2"]!="None":
                     miss_count=miss_count+2
                 continue
+            #give up if median is above mean
+            #if np.median(yy) > np.mean(yy):
+                #continue
             
             #Find local maximum with smoothened curve
             local_minima = detect_local_minima_before_peaks(x, peaks)
