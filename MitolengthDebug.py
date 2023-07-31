@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from scipy.signal import argrelextrema, find_peaks, filtfilt, butter, peak_prominences
+from scipy.signal import argrelextrema, find_peaks, filtfilt, butter
 from matplotlib import pyplot as plt
 import czifile as cz
 import xml.etree.ElementTree as ET
@@ -64,8 +64,10 @@ df.POSITION_Y = df.POSITION_Y.astype(float)
 
 #set bound
 bound = pixel_size_in_microns-10
-df = df.drop(df[(df.POSITION_X < 10) & (df.POSITION_X > bound)].index)
-df = df.drop(df[(df.POSITION_Y < 10) & (df.POSITION_Y > bound)].index)
+'''df.drop(df[df.POSITION_X < 10].index,axis=0,inplace=True)
+df.drop(df[df.POSITION_X > bound].index,axis=0,inplace=True)
+df.drop(df[df.POSITION_Y < 10].index,axis=0,inplace=True)
+df.drop(df[df.POSITION_Y > bound].index,axis=0,inplace=True)'''
 
 #set initial indices
 ind=0
@@ -99,7 +101,7 @@ for freq in range(5,10,1):
 
             #obtain Frame, Std data, sort from a specific track ID
             newdf=df.loc[id,['FRAME','STD_INTENSITY_CH1']].sort_values(by='FRAME',ascending=True)
-            dfm=pd.read_excel("C:\\Users\\Ludwig.Qi\\Desktop\\POON Lab first analysis\\Testing Single Sample\\Manual_Data_Collection..xlsx")
+            dfm=pd.read_excel("Debugging Materials/Manual_Data_Collection.xlsx")
             manualdata=dfm.loc[id]
             x = newdf.STD_INTENSITY_CH1.values.astype(float)
 
@@ -114,10 +116,8 @@ for freq in range(5,10,1):
             #Smoothening the curve by filtfilt
             yy=butter_lowpass_filtfilt(x,fre=freq/10)
             #find peaks and threshold
-            threshold = np.maximum(200,np.quantile(yy,qnum/100))
-            peaks,_ = find_peaks(yy,height=threshold,distance=60,prominence=promnum)
-            
-
+            peaks,_ = find_peaks(yy,height=200,distance=60,prominence=promnum)
+            peaks = list(idd + min(newdf['FRAME']) for idd in peaks)
             #give up if no peaks identified
             if not peaks:
                 if manualdata["MS1"]!="None" and manualdata["MS2"]=="None":
@@ -125,10 +125,7 @@ for freq in range(5,10,1):
                 if manualdata["MS1"]!="None" and manualdata["MS2"]!="None":
                     miss_count=miss_count+2
                 continue
-            #give up if median is above mean
-            #if np.median(yy) > np.mean(yy):
-                #continue
-            
+
             #Find local maximum with smoothened curve
             local_minima = detect_local_minima_before_peaks(x, peaks)
 
