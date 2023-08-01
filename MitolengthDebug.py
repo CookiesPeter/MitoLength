@@ -42,7 +42,7 @@ def plot3d(X,Y,Z,Title):
     plt.show()
 
 #get metadata from czi
-xml_metadata = cz.CziFile("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#3(distance=120)/raw data/RN221213abc-Scene(64).czi").metadata()
+xml_metadata = cz.CziFile("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#3/raw data/RN221213abc-Scene(64).czi").metadata()
 root = ET.fromstring(xml_metadata)
 for val in root.findall('.//Distance[@Id="X"]/Value'):
     pixel_size_in_meters=float(val.text)
@@ -51,6 +51,7 @@ for val in root.findall('.//Distance[@Id="X"]/Value'):
 #data import and tidying
 filepath=tk.askopenfilenames(title='Please select the csv file from TrackMate.',filetypes=(('Csv','*.csv'),('All files','*')))
 df=pd.read_csv(filepath[0],low_memory=False)
+dfm=pd.read_excel("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#3/Manual_Data_Collection.xlsx")
 
 #Drop some useless labels
 df.drop(index = df.index[0:3],axis=0,inplace=True)
@@ -84,7 +85,7 @@ promnum_list=[]
 idlist=[]
 
 for freq in range(5,10,1):
-    for promnum in range(0,501,25):
+    for promnum in range(0,501,50):
         print("cutoff freq: ",freq/10,"Prominence:",promnum)
         falsepositive=0
         miss_count =0
@@ -101,7 +102,6 @@ for freq in range(5,10,1):
 
             #obtain Frame, Std data, sort from a specific track ID
             newdf=df.loc[id,['FRAME','STD_INTENSITY_CH1']].sort_values(by='FRAME',ascending=True)
-            dfm=pd.read_excel("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#3(distance=120)/Manual_Data_Collection.xlsx")
             manualdata=dfm.loc[id]
             x = newdf.STD_INTENSITY_CH1.values.astype(float)
 
