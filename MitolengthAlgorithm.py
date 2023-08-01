@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from scipy.signal import argrelextrema, find_peaks, filtfilt, butter, peak_prominences
+from scipy.signal import argrelextrema, find_peaks, filtfilt, butter
 from matplotlib import pyplot as plt
 import csv
 import czifile as cz
@@ -16,12 +16,18 @@ def detect_local_minima_before_peaks(signal, peak_indices):
         if not local_min_index.any():
             continue
         local_min_index = local_min_index[-1]
-        local_min_value = before_peak[local_min_index]
-        local_minima.append(((local_min_index, local_min_value),peak_index))
+        local_minima_pair = (local_min_index,peak_index)
+        local_minima.append(local_minima_pair)
     return local_minima
 
+#define butter_lowpass_filtfilt
+def butter_lowpass_filtfilt(data,fre,order=10):
+    b,a = butter(order,fre,'lowpass', analog=False)
+    output = filtfilt(b,a,data,axis=0)
+    return output
+
 #get metadata from czi
-xml_metadata = cz.CziFile('raw data and manual counted/Test data.czi').metadata()
+xml_metadata = cz.CziFile('/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#1/raw data and manual counted/Test data.czi').metadata()
 root = ET.fromstring(xml_metadata)
 for val in root.findall('.//Distance[@Id="X"]/Value'):
     pixel_size_in_meters=float(val.text)
@@ -29,8 +35,7 @@ for val in root.findall('.//Distance[@Id="X"]/Value'):
 
 #data import and tidying
 filepath=tk.askopenfilenames(title='Please select the csv file from TrackMate.',filetypes=(('Csv','*.csv'),('All files','*')))
-
-df=pd.read_csv(filepath[0])
+df=pd.read_csv(filepath[0],low_memory=False)
 
 #Drop some useless labels
 df.drop(index = df.index[0:3],axis=0,inplace=True)
@@ -42,30 +47,16 @@ df.FRAME= df.FRAME.astype(int)
 df.POSITION_X = df.POSITION_X.astype(float)
 df.POSITION_Y = df.POSITION_Y.astype(float)
 
-#set bound
-bound = pixel_size_in_microns-10
-df = df.drop(df[(df.POSITION_X < 10) & (df.POSITION_X > bound)].index)
-df = df.drop(df[(df.POSITION_Y < 10) & (df.POSITION_Y > bound)].index)
-
 #append/start a csv file, set initial indices, add a header
 ind=0
-falsepositive=0
-miss_count = 0
 file = open('Results.csv','a',newline='')
 writer=csv.writer(file)
-head=['Index','TrackID','#splits','Algorithm Start','Algorithm End','Prominences','Adaptive Threshold']
+head=['Index','TrackID','#splits','Mitotic Start','Mitotic End']
 writer.writerow(head)
 file.close()
 
-#add a cheat code
-skip=int(input('Please indicate the track Id you wanna skip to:'))
-
 #Search unique TRACK ID
 for id in df.index.unique():
-
-    #skip code
-    if id < skip:
-        continue
 
     #obtain Frame, Std data, sort from a specific track ID
     newdf=df.loc[id,['FRAME','STD_INTENSITY_CH1']].sort_values(by='FRAME',ascending=True)
@@ -76,52 +67,21 @@ for id in df.index.unique():
          continue
     
     #Smoothening the curve by filtfilt
-    b, a = butter(8, 0.125,analog=False)
-    yy= filtfilt(b,a,x)
-
+    yy=butter_lowpass_filtfilt(x,fre=0.5)
     #find peaks and threshold
-    #threshold = np.maximum(200,np.quantile(yy,0.85))
-    peaks,_ = find_peaks(yy,height=0,distance=60,prominence=105)
-
+    peaks,_ = find_peaks(yy,distance=60,prominence=(2.0478*np.std(x)-68.183))
+    
     #give up if no peaks identified
     if not peaks.size:
             continue
-    
-    #give up if median is above mean
-    #if np.median(yy) > np.mean(yy):
-        #continue
-    
+
     #Find local maximum with smoothened curve
     local_minima = detect_local_minima_before_peaks(x, peaks)
-    prominences= peak_prominences(yy,peaks)[0]
-
-    for i,peakpair in enumerate(local_minima):
-        ((index,values),peakss) = peakpair
-
+    for (start,peakss) in local_minima:
         #Excel output
         file =open('Results.csv','a',newline='')
         writer=csv.writer(file)
         ind=ind+1
-        Append=[[str(ind),str(id),str(len(peaks)),str(index),str(peakss),str(prominences[i]),str(np.quantile(x,0.95))]]
+        Append=[[str(ind),str(id),str(len(peaks)),str(start),str(peakss)]]
         writer.writerows(Append)
         file.close()
-
-    #add curve
-    plt.plot(x,label='Raw Curve')
-    plt.plot(yy,label='Smoothened Curve')
-
-    #add algorithm dots
-    plt.plot(index,values,'x',label='Algorithm start',color='green')
-    plt.plot(peaks,yy[peaks],'o',label='Algorithm end',color='red') 
-    #plt.axhline(y=threshold, color='r', linestyle='-')
-    #plt.axhline(y=np.mean(yy), color='b', linestyle='-')
-    #plt.axhline(y=np.quantile(yy,0.5),color='g',linestyle = '-')
-    contour_heights = yy[peaks] - prominences
-    plt.vlines(x=peaks, ymin=contour_heights, ymax=yy[peaks],color='orange',label='Prominences')
-
-    #preliminarily show plot
-    plt.title('TRACK '+ str(id))
-    plt.legend()
-    plt.savefig('Track ID '+str(id))
-    plt.close()
-    print('Track'+str(id))
