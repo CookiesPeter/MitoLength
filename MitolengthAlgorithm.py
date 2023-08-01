@@ -69,7 +69,7 @@ for id in df.index.unique():
     #Smoothening the curve by filtfilt
     yy=butter_lowpass_filtfilt(x,fre=0.5)
     #find peaks and threshold
-    peaks,_ = find_peaks(yy,distance=60,prominence=(2.0478*np.std(x)-68.183))
+    peaks,_ = find_peaks(yy,distance=120,prominence=(2.0478*np.std(x)-68.183))
     peaks = list(idd + min(newdf['FRAME']) for idd in peaks)
     
     #give up if no peaks identified
