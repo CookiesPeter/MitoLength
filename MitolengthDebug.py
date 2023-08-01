@@ -117,6 +117,7 @@ for freq in range(5,10,1):
             yy=butter_lowpass_filtfilt(x,fre=freq/10)
             #find peaks and threshold
             peaks,_ = find_peaks(yy,distance=60,prominence=promnum)
+            peaks = list(idd + min(newdf['FRAME']) for idd in peaks)
             
             #give up if no peaks identified
             if not peaks:

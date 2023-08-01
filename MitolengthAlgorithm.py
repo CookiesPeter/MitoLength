@@ -27,7 +27,7 @@ def butter_lowpass_filtfilt(data,fre,order=10):
     return output
 
 #get metadata from czi
-xml_metadata = cz.CziFile('/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#1/raw data and manual counted/Test data.czi').metadata()
+xml_metadata = cz.CziFile('/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#3/raw data/RN221213abc-Scene(64).czi').metadata()
 root = ET.fromstring(xml_metadata)
 for val in root.findall('.//Distance[@Id="X"]/Value'):
     pixel_size_in_meters=float(val.text)
@@ -70,9 +70,10 @@ for id in df.index.unique():
     yy=butter_lowpass_filtfilt(x,fre=0.5)
     #find peaks and threshold
     peaks,_ = find_peaks(yy,distance=60,prominence=(2.0478*np.std(x)-68.183))
+    peaks = list(idd + min(newdf['FRAME']) for idd in peaks)
     
     #give up if no peaks identified
-    if not peaks.size:
+    if not peaks:
             continue
 
     #Find local maximum with smoothened curve
