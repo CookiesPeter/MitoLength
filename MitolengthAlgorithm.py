@@ -8,11 +8,10 @@ import xml.etree.ElementTree as ET
 import tkinter.filedialog as tk
 
 #define local minima before peak
-def detect_local_minima_before_peaks(signal, peak_indices,htres):
+def detect_local_minima_before_peaks(signal, peak_indices):
     local_minima = []
     for peak_index in peak_indices:
         before_peak = signal[:peak_index]
-        before_peak = before_peak[before_peak < htres]
         local_min_index = argrelextrema(before_peak,np.less)[0]
         if not local_min_index.any():
             continue
@@ -81,8 +80,8 @@ for id in df.index.unique():
     yy= filtfilt(b,a,x)
 
     #find peaks and threshold
-    threshold = np.maximum(200,np.quantile(yy,0.85))
-    peaks,_ = find_peaks(yy,height=threshold,distance=60,prominence=100)
+    #threshold = np.maximum(200,np.quantile(yy,0.85))
+    peaks,_ = find_peaks(yy,height=0,distance=60,prominence=105)
 
     #give up if no peaks identified
     if not peaks.size:
@@ -93,17 +92,11 @@ for id in df.index.unique():
         #continue
     
     #Find local maximum with smoothened curve
-    local_minima = detect_local_minima_before_peaks(x, peaks,np.quantile(x,0.95))
+    local_minima = detect_local_minima_before_peaks(x, peaks)
     prominences= peak_prominences(yy,peaks)[0]
 
     for i,peakpair in enumerate(local_minima):
         ((index,values),peakss) = peakpair
-
-        #append list
-        if id == df2['Track']:
-             Manual_Start_list.append(df2.loc[df2['Track'] == id, "MS"+str(i)])
-        Algorithm_Start_list.append(index)
-        Algorithm_End_list.append(peakss)
 
         #Excel output
         file =open('Results.csv','a',newline='')
@@ -129,6 +122,6 @@ for id in df.index.unique():
     #preliminarily show plot
     plt.title('TRACK '+ str(id))
     plt.legend()
-    #plt.savefig('Track ID '+str(id))
+    plt.savefig('Track ID '+str(id))
     plt.close()
     print('Track'+str(id))

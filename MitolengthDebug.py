@@ -42,7 +42,7 @@ def plot3d(X,Y,Z,Title):
     plt.show()
 
 #get metadata from czi
-xml_metadata = cz.CziFile("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#2/raw data/LCI230606_MHLKSH-6_AcquisitionBlock1_pt1-Scene-31-P4-A06111.czi").metadata()
+xml_metadata = cz.CziFile("C:/Users/Ludwig.Qi/Desktop/POON Lab first analysis/Testing Single Sample/230414_LK_MH_PF_AcquisitionBlock3_pt3-Scene-26-P1-C05.czi").metadata()
 root = ET.fromstring(xml_metadata)
 for val in root.findall('.//Distance[@Id="X"]/Value'):
     pixel_size_in_meters=float(val.text)
@@ -50,7 +50,7 @@ for val in root.findall('.//Distance[@Id="X"]/Value'):
 
 #data import and tidying
 filepath=tk.askopenfilenames(title='Please select the csv file from TrackMate.',filetypes=(('Csv','*.csv'),('All files','*')))
-df=pd.read_csv(filepath[0])
+df=pd.read_csv(filepath[0],low_memory=False)
 
 #Drop some useless labels
 df.drop(index = df.index[0:3],axis=0,inplace=True)
@@ -84,7 +84,7 @@ promnum_list=[]
 idlist=[]
 
 for freq in range(5,10,1):
-    for promnum in range(0,301,25):
+    for promnum in range(0,501,25):
         print("cutoff freq: ",freq/10,"Prominence:",promnum)
         falsepositive=0
         miss_count =0
@@ -101,7 +101,7 @@ for freq in range(5,10,1):
 
             #obtain Frame, Std data, sort from a specific track ID
             newdf=df.loc[id,['FRAME','STD_INTENSITY_CH1']].sort_values(by='FRAME',ascending=True)
-            dfm=pd.read_excel("Debugging Materials/Manual_Data_Collection.xlsx")
+            dfm=pd.read_excel("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#3/Manual_Data_Collection.xlsx")
             manualdata=dfm.loc[id]
             x = newdf.STD_INTENSITY_CH1.values.astype(float)
 
@@ -116,8 +116,8 @@ for freq in range(5,10,1):
             #Smoothening the curve by filtfilt
             yy=butter_lowpass_filtfilt(x,fre=freq/10)
             #find peaks and threshold
-            peaks,_ = find_peaks(yy,height=200,distance=60,prominence=promnum)
-            peaks = list(idd + min(newdf['FRAME']) for idd in peaks)
+            peaks,_ = find_peaks(yy,distance=60,prominence=promnum)
+            
             #give up if no peaks identified
             if not peaks:
                 if manualdata["MS1"]!="None" and manualdata["MS2"]=="None":
@@ -226,7 +226,8 @@ for freq in range(5,10,1):
         regr_end.fit(data_algo_end,data_manual_end)
         r_square=regr_end.score(data_algo_end,data_manual_end)*1+regr_start.score(data_algo_start,data_manual_start)*0
         normal_rate=float(normal)/(normal+falsepositive+miss_count)
-        print("R square: "+str(r_square)+"\nTracked normal cell#: "+str(normal))
+        print("R square: "+str(r_square)+" Normal Rate: "+str(normal_rate)+"\nTracked normal cell#: "+str(normal))
+        print(falsepositive)
         r_list.append(r_square)
         normal_rate_list.append(normal_rate)
         normal_list.append(normal)
