@@ -6,7 +6,6 @@ import czifile as cz
 import xml.etree.ElementTree as ET
 import tkinter.filedialog as tk
 from sklearn.linear_model import LinearRegression
-import time
 
 #define local minima before peak
 def detect_local_minima_before_peaks(signal, peak_indices):
@@ -42,7 +41,7 @@ def plot3d(X,Y,Z,Title):
     plt.show()
 
 #get metadata from czi
-xml_metadata = cz.CziFile("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#3/raw data/RN221213abc-Scene(64).czi").metadata()
+xml_metadata = cz.CziFile("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#2/raw data/LCI230606_MHLKSH-6_AcquisitionBlock1_pt1-Scene-35-P6-A06333.czi").metadata()
 root = ET.fromstring(xml_metadata)
 for val in root.findall('.//Distance[@Id="X"]/Value'):
     pixel_size_in_meters=float(val.text)
@@ -51,7 +50,7 @@ for val in root.findall('.//Distance[@Id="X"]/Value'):
 #data import and tidying
 filepath=tk.askopenfilenames(title='Please select the csv file from TrackMate.',filetypes=(('Csv','*.csv'),('All files','*')))
 df=pd.read_csv(filepath[0],low_memory=False)
-dfm=pd.read_excel("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#3/Manual_Data_Collection.xlsx")
+dfm=pd.read_excel("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#2/Manual_Data_Collection3.xlsx")
 
 #Drop some useless labels
 df.drop(index = df.index[0:3],axis=0,inplace=True)
@@ -85,7 +84,7 @@ promnum_list=[]
 idlist=[]
 
 for freq in range(5,10,1):
-    for promnum in range(0,501,50):
+    for promnum in range(0,4001,20):
         print("cutoff freq: ",freq/10,"Prominence:",promnum)
         falsepositive=0
         miss_count =0
