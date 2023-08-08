@@ -20,8 +20,8 @@ def detect_local_minima_before_peaks(signal, peak_indices):
     return local_minima
 
 #define butter_lowpass_filtfilt
-def butter_lowpass_filtfilt(data,fre,order=10):
-    b,a = butter(order,fre,'lowpass', analog=False)
+def butter_lowpass_filtfilt(data,fre,order=8):
+    b,a = butter(order,fre,"lowpass",analog=False)
     output = filtfilt(b,a,data,axis=0)
     return output
 
@@ -41,7 +41,7 @@ def plot3d(X,Y,Z,Title):
     plt.show()
 
 #get metadata from czi
-xml_metadata = cz.CziFile("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#2/raw data/LCI230606_MHLKSH-6_AcquisitionBlock1_pt1-Scene-35-P6-A06333.czi").metadata()
+xml_metadata = cz.CziFile("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#1/raw data and manual counted/Test data.czi").metadata()
 root = ET.fromstring(xml_metadata)
 for val in root.findall('.//Distance[@Id="X"]/Value'):
     pixel_size_in_meters=float(val.text)
@@ -50,7 +50,7 @@ for val in root.findall('.//Distance[@Id="X"]/Value'):
 #data import and tidying
 filepath=tk.askopenfilenames(title='Please select the csv file from TrackMate.',filetypes=(('Csv','*.csv'),('All files','*')))
 df=pd.read_csv(filepath[0],low_memory=False)
-dfm=pd.read_excel("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#2/Manual_Data_Collection3.xlsx")
+dfm=pd.read_excel("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#1/Manual_Data_Collection_wo_sides.xlsx")
 
 #Drop some useless labels
 df.drop(index = df.index[0:3],axis=0,inplace=True)
@@ -83,14 +83,14 @@ freq_list=[]
 promnum_list=[]
 idlist=[]
 
-for freq in range(5,10,1):
-    for promnum in range(0,4001,20):
-        print("cutoff freq: ",freq/10,"Prominence:",promnum)
+for freq in range(1,10,1):
+    for promnum in range(1,51,1):
+        print("cutoff freq: ",freq/10,"Prominence:",promnum/100)
         falsepositive=0
         miss_count =0
         normal=0
         freq_list.append(freq/10)
-        promnum_list.append(promnum)
+        promnum_list.append(promnum/100)
         All_start_list_manual=[]
         All_end_list_manual=[]
         All_start_list_alg=[]
@@ -114,16 +114,26 @@ for freq in range(5,10,1):
             
             #Smoothening the curve by filtfilt
             yy=butter_lowpass_filtfilt(x,fre=freq/10)
+            yy=yy/max(yy)
+
             #find peaks and threshold
-            peaks,_ = find_peaks(yy,distance=120,prominence=promnum)
+            peaks = list(find_peaks(yy,distance=60,prominence=promnum/100)[0])
             peaks = list(idd + min(newdf['FRAME']) for idd in peaks)
             
             #give up if no peaks identified
             if not peaks:
                 if manualdata["MS1"]!="None" and manualdata["MS2"]=="None":
                     miss_count=miss_count+1
-                if manualdata["MS1"]!="None" and manualdata["MS2"]!="None":
+                    plt.plot(yy)
+                    plt.plot(peaks,yy[peaks])
+                    print("nopeaks"+str(id))
+                    plt.show()
+                elif manualdata["MS1"]!="None" and manualdata["MS2"]!="None":
                     miss_count=miss_count+2
+                    plt.plot(yy)
+                    plt.plot(peaks,yy[peaks])
+                    print("nopeaks"+str(id))
+                    plt.show()
                 continue
 
             #Find local maximum with smoothened curve
@@ -143,8 +153,6 @@ for freq in range(5,10,1):
             if manualdata["MS1"]!="None" and manualdata["MS2"]=="None":
                 if manualdata["ME1"]=="None":
                     continue
-                if len(peaks)==0:
-                    miss_count=miss_count+1
                 else:
                     differ = abs(peaks[0]-manualdata["ME1"])
                     real_peak=peaks[0]
@@ -166,10 +174,12 @@ for freq in range(5,10,1):
             if manualdata["MS1"]!="None" and manualdata["MS2"]!="None":
                 if manualdata["ME2"]=="None":
                     continue
-                if len(peaks)==0:
-                    miss_count=miss_count+2
                 if len(peaks)==1:
                     miss_count=miss_count+1
+                    plt.plot(yy)
+                    plt.plot(peaks,yy[peaks],'x')
+                    print("missed one"+str(id))
+                    plt.show()
                     if abs(peaks[0]- manualdata["ME1"])<=abs(peaks[0]-manualdata["ME2"]):
                         All_end_list_manual.append(manualdata["ME1"])
                         All_end_list_alg.append(peaks[0])
@@ -213,7 +223,7 @@ for freq in range(5,10,1):
                 
         #give it a break
         #time.sleep(1)
-        
+
         data_start =pd.DataFrame({'manual_start':All_start_list_manual,'Algo_start':All_start_list_alg})
         data_manual_start=np.array(data_start['manual_start'])
         data_algo_start=np.array(data_start['Algo_start']).reshape((-1,1))
@@ -227,7 +237,6 @@ for freq in range(5,10,1):
         r_square=regr_end.score(data_algo_end,data_manual_end)*1+regr_start.score(data_algo_start,data_manual_start)*0
         normal_rate=float(normal)/(normal+falsepositive+miss_count)
         print("R square: "+str(r_square)+" Normal Rate: "+str(normal_rate)+"\nTracked normal cell#: "+str(normal))
-        print(falsepositive)
         r_list.append(r_square)
         normal_rate_list.append(normal_rate)
         normal_list.append(normal)
