@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Mainwindow</class>
+ <widget class="QDialog" name="Mainwindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>286</width>
+    <height>432</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Configurations</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Trackmate Output:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="Openfile">
+     <property name="text">
+      <string>Choose...</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Czi File:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="czibutton">
+     <property name="text">
+      <string>Choose...</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Save folder location:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="Openfolder">
+     <property name="text">
+      <string>Save As...</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Prominence:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QSlider" name="Promslider">
+     <property name="maximum">
+      <number>9</number>
+     </property>
+     <property name="pageStep">
+      <number>0</number>
+     </property>
+     <property name="value">
+      <number>2</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksAbove</enum>
+     </property>
+     <property name="tickInterval">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Minimum frame number between mitosis:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QSlider" name="Frameslider">
+     <property name="maximum">
+      <number>500</number>
+     </property>
+     <property name="value">
+      <number>60</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksAbove</enum>
+     </property>
+     <property name="tickInterval">
+      <number>50</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLabel" name="label_5">
+       <property name="minimumSize">
+        <size>
+         <width>200</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>306</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Drop marginal cells?</string>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignRight">
+      <widget class="QCheckBox" name="Dropbox">
+       <property name="text">
+        <string>Drop</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Order of Butterworth</string>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignRight">
+      <widget class="QSpinBox" name="OrderSpin">
+       <property name="maximum">
+        <number>10</number>
+       </property>
+       <property name="value">
+        <number>4</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Mainwindow</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>242</x>
+     <y>427</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Mainwindow</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>273</x>
+     <y>427</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>285</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Openfile</sender>
+   <signal>pressed()</signal>
+   <receiver>Mainwindow</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>238</x>
+     <y>59</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>285</x>
+     <y>56</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Openfolder</sender>
+   <signal>pressed()</signal>
+   <receiver>Mainwindow</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>240</x>
+     <y>197</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>285</x>
+     <y>130</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Dropbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Dropbox</receiver>
+   <slot>toggle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>273</x>
+     <y>344</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>344</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>OrderSpin</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>OrderSpin</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>272</x>
+     <y>378</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>272</x>
+     <y>378</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Promslider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>Promslider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>132</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Frameslider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>Frameslider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>58</x>
+     <y>314</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>41</x>
+     <y>314</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>czibutton</sender>
+   <signal>pressed()</signal>
+   <receiver>Mainwindow</receiver>
+   <slot>openczi()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>132</x>
+     <y>118</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>280</x>
+     <y>109</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>openfile()</slot>
+  <slot>openfolder()</slot>
+  <slot>openczi()</slot>
+ </slots>
+</ui>

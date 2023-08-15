@@ -64,10 +64,10 @@ df.POSITION_Y = df.POSITION_Y.astype(float)
 
 #set bound
 bound = pixel_size_in_microns-10
-'''df.drop(df[df.POSITION_X < 10].index,axis=0,inplace=True)
+df.drop(df[df.POSITION_X < 10].index,axis=0,inplace=True)
 df.drop(df[df.POSITION_X > bound].index,axis=0,inplace=True)
 df.drop(df[df.POSITION_Y < 10].index,axis=0,inplace=True)
-df.drop(df[df.POSITION_Y > bound].index,axis=0,inplace=True)'''
+df.drop(df[df.POSITION_Y > bound].index,axis=0,inplace=True)
 
 #set initial indices
 ind=0
