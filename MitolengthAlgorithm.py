@@ -11,7 +11,7 @@ import sys
 class Ui_Mainwindow(object):
     def setupUi(self, Mainwindow):
         Mainwindow.setObjectName("Mainwindow")
-        Mainwindow.resize(318, 448)
+        Mainwindow.resize(332, 448)
         self.verticalLayout = QtWidgets.QVBoxLayout(Mainwindow)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label = QtWidgets.QLabel(Mainwindow)
@@ -115,11 +115,17 @@ class Ui_Mainwindow(object):
         self.OrderSpin.setObjectName("OrderSpin")
         self.horizontalLayout.addWidget(self.OrderSpin, 0, QtCore.Qt.AlignRight)
         self.verticalLayout.addLayout(self.horizontalLayout)
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.label_11 = QtWidgets.QLabel(Mainwindow)
+        self.label_11.setObjectName("label_11")
+        self.horizontalLayout_4.addWidget(self.label_11)
         self.buttonBox = QtWidgets.QDialogButtonBox(Mainwindow)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
-        self.verticalLayout.addWidget(self.buttonBox)
+        self.horizontalLayout_4.addWidget(self.buttonBox)
+        self.verticalLayout.addLayout(self.horizontalLayout_4)
 
         self.retranslateUi(Mainwindow)
         self.buttonBox.accepted.connect(Mainwindow.accept) # type: ignore
@@ -154,6 +160,7 @@ class Ui_Mainwindow(object):
         self.Dropbox.setText(_translate("Mainwindow", "Drop"))
         self.label_6.setWhatsThis(_translate("Mainwindow", "<html><head/><body><p>Frequency of the butterworth. The stronger the frequency, the higher the cutoff frequency. Usually lower means more smoothening. From 1 to 10.</p></body></html>"))
         self.label_6.setText(_translate("Mainwindow", "Cutoff Frequency of Butterworth:"))
+        self.label_11.setText(_translate("Mainwindow", "©Poon Lab"))
 
     def openfile(self):
         self.filepath,_ = QtWidgets.QFileDialog.getOpenFileName(None, caption="Open export.csv", filter="Csv Files (*.csv);;All Files (*)")
