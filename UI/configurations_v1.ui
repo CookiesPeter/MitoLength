@@ -16,6 +16,9 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
+     <property name="whatsThis">
+      <string>This takes the &quot;export.csv&quot; file from Trackmate's Tracking data. Only csv file.</string>
+     </property>
      <property name="text">
       <string>Trackmate Output:</string>
      </property>
@@ -30,6 +33,9 @@
    </item>
    <item>
     <widget class="QLabel" name="label_7">
+     <property name="whatsThis">
+      <string>This takes the czi file from Zeiss imaging and extracts some metadata from it. Only czi file.</string>
+     </property>
      <property name="text">
       <string>Czi File:</string>
      </property>
@@ -44,6 +50,9 @@
    </item>
    <item>
     <widget class="QLabel" name="label_2">
+     <property name="whatsThis">
+      <string>This specifies the location you want to save the results at.</string>
+     </property>
      <property name="text">
       <string>Save folder location:</string>
      </property>
@@ -58,6 +67,9 @@
    </item>
    <item>
     <widget class="QLabel" name="label_3">
+     <property name="whatsThis">
+      <string>This defines the threshold for the promience of mitosis identification. The higher, the more stringent the peak identification is. From 0 to 9.</string>
+     </property>
      <property name="text">
       <string>Prominence:</string>
      </property>
@@ -78,6 +90,9 @@
          <width>250</width>
          <height>0</height>
         </size>
+       </property>
+       <property name="mouseTracking">
+        <bool>false</bool>
        </property>
        <property name="maximum">
         <number>9</number>
@@ -122,6 +137,9 @@
    </item>
    <item>
     <widget class="QLabel" name="label_4">
+     <property name="whatsThis">
+      <string>This defines the minimum expected frames between two mitotic peaks. Please specify according to your sampling interval.</string>
+     </property>
      <property name="text">
       <string>Minimum frame number between mitosis:</string>
      </property>
@@ -197,6 +215,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="whatsThis">
+        <string>This button controls whether to drop cells that has come in contact with the margins of the field of view.</string>
+       </property>
        <property name="text">
         <string>Drop marginal cells?</string>
        </property>
@@ -215,13 +236,19 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLabel" name="label_6">
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Frequency of the butterworth. The stronger the frequency, the higher the cutoff frequency. Usually lower means more smoothening. From 1 to 10.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
-        <string>Order of Butterworth</string>
+        <string>Cutoff Frequency of Butterworth:</string>
        </property>
       </widget>
      </item>
      <item alignment="Qt::AlignRight">
       <widget class="QSpinBox" name="OrderSpin">
+       <property name="minimum">
+        <number>1</number>
+       </property>
        <property name="maximum">
         <number>10</number>
        </property>
@@ -313,16 +340,16 @@
   <connection>
    <sender>Dropbox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Dropbox</receiver>
-   <slot>toggle()</slot>
+   <receiver>Mainwindow</receiver>
+   <slot>toggledrop()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>273</x>
      <y>344</y>
     </hint>
     <hint type="destinationlabel">
-     <x>273</x>
-     <y>344</y>
+     <x>158</x>
+     <y>223</y>
     </hint>
    </hints>
   </connection>
@@ -401,8 +428,8 @@
      <y>255</y>
     </hint>
     <hint type="destinationlabel">
-     <x>270</x>
-     <y>253</y>
+     <x>304</x>
+     <y>262</y>
     </hint>
    </hints>
   </connection>
@@ -417,8 +444,8 @@
      <y>307</y>
     </hint>
     <hint type="destinationlabel">
-     <x>258</x>
-     <y>313</y>
+     <x>304</x>
+     <y>326</y>
     </hint>
    </hints>
   </connection>
@@ -427,5 +454,6 @@
   <slot>openfile()</slot>
   <slot>openfolder()</slot>
   <slot>openczi()</slot>
+  <slot>toggledrop()</slot>
  </slots>
 </ui>
