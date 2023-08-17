@@ -28,7 +28,9 @@ def detect_deltay_neighbourpeak(dydxpeaks,root):
         except:
             continue
         deltay.append((lowbound,upbound))
-    return deltay
+        deltalist = [(bound[0],yy[bound[1]]-yy[bound[0]]) for bound in deltay]
+        apoplist = [apop[0] for apop in deltalist if apop[1] > 0.2]
+    return apoplist,deltay
 
 #define butter_lowpass_filtfilt
 def butter_lowpass_filtfilt(data,fre,order=8):
@@ -102,25 +104,22 @@ for id in df.index.unique():
     idx = np.argwhere(np.diff(np.sign(butterdydx - 0))).flatten()
 
     #getbounds
-    bounds = detect_deltay_neighbourpeak(dydxpeaks,idx)
-    deltalist = [(bound[0],yy[bound[1]]-yy[bound[0]]) for bound in bounds]
-    print(id,deltalist)
-    apoplist = [apop[0] for apop in deltalist if apop[1] > 0.2]
-    print(apoplist)
-
+    apoplist,bounds = detect_deltay_neighbourpeak(dydxpeaks,idx)
+    
     #plotgraph
     plt.plot(x,label="raw",color="blue")
     plt.plot(yy,label="filtfilt",color="green")
     #plt.plot(dydx,label='dydx',color='grey')
     plt.plot(butterdydx,label='smooth dydx',color='red')
-    plt.plot(dydxpeaks,butterdydx[dydxpeaks],'*',label='dydxpeaks')
+    plt.plot(dydxpeaks,butterdydx[dydxpeaks],'*',label='dydx peaks')
     plt.plot(apoplist,np.zeros(len(apoplist)),marker='P',label='apoptosis',markersize=20)
     for bound in bounds:
-        plt.plot(bound[0],0,marker='^',label='lower')
-        plt.plot(bound[1],0,marker='v',label='upper')
+        plt.plot(bound[0],0,marker='^',label='lower bound',markersize=10)
+        plt.plot(bound[1],0,marker='v',label='upper bound',markersize=10)
     plt.axhline()
     plt.plot(peaks,yy[peaks],'x',label="peaks")
     plt.plot(local_minima,x[local_minima],'o',label="start")
-    plt.legend()
+    plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
+    plt.tight_layout()
     plt.savefig("Track: "+str(id))
     plt.close()
