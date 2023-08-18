@@ -4,6 +4,7 @@ from scipy.signal import argrelextrema, find_peaks, filtfilt, butter
 from matplotlib import pyplot as plt
 import czifile as cz
 import xml.etree.ElementTree as ET
+import csv
 
 #define local minima before peak
 def detect_local_minima_before_peaks(signal, peak_indices):
@@ -17,20 +18,28 @@ def detect_local_minima_before_peaks(signal, peak_indices):
         local_minima.append(local_min_index)
     return local_minima
 
-def detect_deltay_neighbourpeak(dydxpeaks,root):
+def detect_deltay_neighbourpeak(yy):
     deltay = []
+    #calculate derivative
+    dydx = np.gradient(yy)
+    dydx = dydx/max(dydx)
+    butterdydx=butter_lowpass_filtfilt(dydx,order=10,fre=0.15)
+    #findwheremeetszero
+    dydxpeaks = list(find_peaks(butterdydx,prominence=0.5)[0])
+    idx = np.argwhere(np.diff(np.sign(butterdydx - 0))).flatten()
     for dydxpeak in dydxpeaks:
-        before_peak = [bp for bp in root if bp < dydxpeak]
+        before_peak = [bp for bp in idx if bp < dydxpeak]
         lowbound = before_peak[-1]
-        after_peak = [bp for bp in root if bp > dydxpeak]
+        after_peak = [bp for bp in idx if bp > dydxpeak]
         try:
             upbound = after_peak[1]
+            peak = after_peak[0]
         except:
             continue
         deltay.append((lowbound,upbound))
         deltalist = [(bound[0],yy[bound[1]]-yy[bound[0]]) for bound in deltay]
         apoplist = [apop[0] for apop in deltalist if apop[1] > 0.2]
-    return apoplist,deltay
+    return apoplist,deltay,peak
 
 #define butter_lowpass_filtfilt
 def butter_lowpass_filtfilt(data,fre,order=8):
@@ -39,10 +48,18 @@ def butter_lowpass_filtfilt(data,fre,order=8):
     return output
 
 #import files
-czi = "/Users/peterfu/Desktop/MitoLength/Optimization Results/ProlongedMitosisOptimization/D5_DI(spc24)/rawdata/LCI_221019-1_AcquisitionBlock2_pt2-Scene-65-P3-D05.czi"
-export = "/Users/peterfu/Desktop/MitoLength/Optimization Results/ProlongedMitosisOptimization/D5_DI(spc24)/exportP3.csv"
+czi = "/Users/peterfu/Desktop/MitoLength/Optimization Results/ProlongedMitosisOptimization/D5_DI(spc24)/rawdata/LCI_221019-1_AcquisitionBlock2_pt2-Scene-61-P2-D05.czi"
+export = "/Users/peterfu/Desktop/MitoLength/Optimization Results/ProlongedMitosisOptimization/D5_DI(spc24)/exportP2.csv"
 xml_metadata = cz.CziFile(czi).metadata()
 df=pd.read_csv(export,low_memory=False)
+
+#append/start a csv file, set initial indices, add a header
+ind=0
+file = open('Results.csv','a',newline='')
+writer=csv.writer(file)
+head=['Index','TrackID','#splits','v1 Start','v1 End','v2 start','v2 midpoint','v2 end']
+writer.writerow(head)
+file.close()
 
 #get metadata from czi
 root = ET.fromstring(xml_metadata)
@@ -62,10 +79,10 @@ df.POSITION_Y = df.POSITION_Y.astype(float)
 
 #set bound
 bound = pixel_size_in_microns-10
-'''df.drop(df[df.POSITION_X < 10].index,axis=0,inplace=True)
+df.drop(df[df.POSITION_X < 10].index,axis=0,inplace=True)
 df.drop(df[df.POSITION_X > bound].index,axis=0,inplace=True)
 df.drop(df[df.POSITION_Y < 10].index,axis=0,inplace=True)
-df.drop(df[df.POSITION_Y > bound].index,axis=0,inplace=True)'''
+df.drop(df[df.POSITION_Y > bound].index,axis=0,inplace=True)
 
 #Search unique TRACK ID
 for id in df.index.unique():
@@ -80,17 +97,12 @@ for id in df.index.unique():
         continue
     
     #Smoothening the curve by filtfilt
-    yy=butter_lowpass_filtfilt(x,fre=0.15)
+    yy=butter_lowpass_filtfilt(x,fre=0.1)
     yy=yy/max(yy)
     x=x/max(x)
     
-    #calculate derivative
-    dydx = np.gradient(x)
-    dydx = dydx/max(dydx)
-    butterdydx=butter_lowpass_filtfilt(dydx,order=10,fre=0.15)
-
     #find peaks and threshold
-    peaks = list(find_peaks(yy,distance=60,prominence=0.3)[0])
+    peaks = list(find_peaks(yy,distance=60,prominence=0.4)[0])
     
     #give up if no peaks identified
     if not peaks:
@@ -99,27 +111,39 @@ for id in df.index.unique():
     #Find local maximum with smoothened curve
     local_minima = detect_local_minima_before_peaks(yy, peaks)
 
-    #findwheremeetszero
-    dydxpeaks = list(find_peaks(butterdydx,prominence=0.2)[0])
-    idx = np.argwhere(np.diff(np.sign(butterdydx - 0))).flatten()
+
 
     #getbounds
-    apoplist,bounds = detect_deltay_neighbourpeak(dydxpeaks,idx)
-    
+    try:
+        apoplist,bounds,peakk = detect_deltay_neighbourpeak(dydxpeaks,idx)
+    except:
+        continue
+
     #plotgraph
-    plt.plot(x,label="raw",color="blue")
+    #plt.plot(x,label="raw",color="blue")
     plt.plot(yy,label="filtfilt",color="green")
+    plt.plot(local_minima,yy[local_minima],marker='x',label='v1_start')
+    plt.plot(peaks,yy[peaks],marker='o',label='v1_peak')
     #plt.plot(dydx,label='dydx',color='grey')
     plt.plot(butterdydx,label='smooth dydx',color='red')
-    plt.plot(dydxpeaks,butterdydx[dydxpeaks],'*',label='dydx peaks')
+    plt.plot(dydxpeaks,butterdydx[dydxpeaks],'*',label='v2_peaks')
     plt.plot(apoplist,np.zeros(len(apoplist)),marker='P',label='apoptosis',markersize=20)
+    plt.plot(peakk,butterdydx[peakk],marker='D',label='v2_midpoint')
     for bound in bounds:
-        plt.plot(bound[0],0,marker='^',label='lower bound',markersize=10)
-        plt.plot(bound[1],0,marker='v',label='upper bound',markersize=10)
+        plt.plot(bound[0],0,marker='^',label='v2_start',markersize=10)
+
+        plt.plot(bound[1],0,marker='v',label='v2_upbound',markersize=10)
     plt.axhline()
-    plt.plot(peaks,yy[peaks],'x',label="peaks")
-    plt.plot(local_minima,x[local_minima],'o',label="start")
     plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
     plt.tight_layout()
     plt.savefig("Track: "+str(id))
     plt.close()
+
+
+    #Excel output
+    file =open('Results.csv','a',newline='')
+    writer=csv.writer(file)
+    ind=ind+1
+    Append=[[str(ind),str(id),str(len(peaks)),str(local_minima),str(peaks),str(bound[0]),str(peakk),str(bound[1])]]
+    writer.writerows(Append)
+    file.close()
