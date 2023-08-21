@@ -20,12 +20,13 @@ def detect_local_minima_before_peaks(signal, peak_indices):
 
 def detect_deltay_neighbourpeak(yy):
     deltay = []
+    peak=[]
     #calculate derivative
     dydx = np.gradient(yy)
     dydx = dydx/max(dydx)
     butterdydx=butter_lowpass_filtfilt(dydx,order=10,fre=0.15)
     #findwheremeetszero
-    dydxpeaks = list(find_peaks(butterdydx,prominence=0.5)[0])
+    dydxpeaks = list(find_peaks(butterdydx,prominence=0.8)[0])
     idx = np.argwhere(np.diff(np.sign(butterdydx - 0))).flatten()
     for dydxpeak in dydxpeaks:
         before_peak = [bp for bp in idx if bp < dydxpeak]
@@ -33,13 +34,13 @@ def detect_deltay_neighbourpeak(yy):
         after_peak = [bp for bp in idx if bp > dydxpeak]
         try:
             upbound = after_peak[1]
-            peak = after_peak[0]
+            peak.append(after_peak[0])
         except:
             continue
         deltay.append((lowbound,upbound))
         deltalist = [(bound[0],yy[bound[1]]-yy[bound[0]]) for bound in deltay]
         apoplist = [apop[0] for apop in deltalist if apop[1] > 0.2]
-    return apoplist,deltay,peak
+    return apoplist,deltay,peak,butterdydx,dydxpeaks
 
 #define butter_lowpass_filtfilt
 def butter_lowpass_filtfilt(data,fre,order=8):
@@ -48,8 +49,8 @@ def butter_lowpass_filtfilt(data,fre,order=8):
     return output
 
 #import files
-czi = "/Users/peterfu/Desktop/MitoLength/Optimization Results/ProlongedMitosisOptimization/D5_DI(spc24)/rawdata/LCI_221019-1_AcquisitionBlock2_pt2-Scene-61-P2-D05.czi"
-export = "/Users/peterfu/Desktop/MitoLength/Optimization Results/ProlongedMitosisOptimization/D5_DI(spc24)/exportP2.csv"
+czi = "/Users/peterfu/Desktop/MitoLength/Optimization Results/MitosisOptimization/Optimization#1/raw data and manual counted/Test data.czi"
+export = "/Users/peterfu/Desktop/MitoLength/Optimization Results/MitosisOptimization/Optimization#1/export.csv"
 xml_metadata = cz.CziFile(czi).metadata()
 df=pd.read_csv(export,low_memory=False)
 
@@ -57,7 +58,7 @@ df=pd.read_csv(export,low_memory=False)
 ind=0
 file = open('Results.csv','a',newline='')
 writer=csv.writer(file)
-head=['Index','TrackID','#splits','v1 Start','v1 End','v2 start','v2 midpoint','v2 end']
+head=['Index','TrackID','v1_#splits','v1 Start','v1 End','v2 start','v2 midpoint','v2 end']
 writer.writerow(head)
 file.close()
 
@@ -111,11 +112,9 @@ for id in df.index.unique():
     #Find local maximum with smoothened curve
     local_minima = detect_local_minima_before_peaks(yy, peaks)
 
-
-
     #getbounds
     try:
-        apoplist,bounds,peakk = detect_deltay_neighbourpeak(dydxpeaks,idx)
+        apoplist,bounds,peakk,butterdydx,dydxpeaks = detect_deltay_neighbourpeak(yy)
     except:
         continue
 
@@ -138,12 +137,3 @@ for id in df.index.unique():
     plt.tight_layout()
     plt.savefig("Track: "+str(id))
     plt.close()
-
-
-    #Excel output
-    file =open('Results.csv','a',newline='')
-    writer=csv.writer(file)
-    ind=ind+1
-    Append=[[str(ind),str(id),str(len(peaks)),str(local_minima),str(peaks),str(bound[0]),str(peakk),str(bound[1])]]
-    writer.writerows(Append)
-    file.close()

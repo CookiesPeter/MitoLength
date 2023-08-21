@@ -41,7 +41,7 @@ def plot3d(X,Y,Z,Title):
     plt.show()
 
 #get metadata from czi
-xml_metadata = cz.CziFile("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#1/raw data and manual counted/Test data.czi").metadata()
+xml_metadata = cz.CziFile("/Users/peterfu/Desktop/MitoLength/Optimization Results/MitosisOptimization/Optimization#2/raw data/LCI230606_MHLKSH-6_AcquisitionBlock1_pt1-Scene-31-P4-A06111.czi").metadata()
 root = ET.fromstring(xml_metadata)
 for val in root.findall('.//Distance[@Id="X"]/Value'):
     pixel_size_in_meters=float(val.text)
@@ -50,7 +50,7 @@ for val in root.findall('.//Distance[@Id="X"]/Value'):
 #data import and tidying
 filepath=tk.askopenfilenames(title='Please select the csv file from TrackMate.',filetypes=(('Csv','*.csv'),('All files','*')))
 df=pd.read_csv(filepath[0],low_memory=False)
-dfm=pd.read_excel("/Users/peterfu/Desktop/MitoLength/Optimization Results/Optimization#1/Manual_Data_Collection_wo_sides.xlsx")
+dfm=pd.read_excel("/Users/peterfu/Desktop/MitoLength/Optimization Results/MitosisOptimization/Optimization#2/Manual_Data_Collection1_wo_sides.xlsx")
 
 #Drop some useless labels
 df.drop(index = df.index[0:3],axis=0,inplace=True)
@@ -118,7 +118,7 @@ for freq in range(1,10,1):
 
             #find peaks and threshold
             peaks = list(find_peaks(yy,distance=60,prominence=promnum/100)[0])
-            peaks = list(idd + min(newdf['FRAME']) for idd in peaks)
+            
             
             #give up if no peaks identified
             if not peaks:
@@ -138,6 +138,8 @@ for freq in range(1,10,1):
 
             #Find local maximum with smoothened curve
             local_minima = detect_local_minima_before_peaks(x, peaks)
+            peaks = list(idd + min(newdf['FRAME']) for idd in peaks)
+            local_minima = list(idd + min(newdf['FRAME']) for idd in local_minima)
 
             if not len(local_minima):
                 continue
@@ -234,6 +236,8 @@ for freq in range(1,10,1):
         data_algo_end=np.array(data_end['Algo_end']).reshape((-1,1))
         regr_end=LinearRegression()
         regr_end.fit(data_algo_end,data_manual_end)
+        plt.scatter(All_start_list_alg,All_start_list_manual)
+        plt.show()
         r_square=regr_end.score(data_algo_end,data_manual_end)*1+regr_start.score(data_algo_start,data_manual_start)*0
         normal_rate=float(normal)/(normal+falsepositive+miss_count)
         print("R square: "+str(r_square)+" Normal Rate: "+str(normal_rate)+"\nTracked normal cell#: "+str(normal))
