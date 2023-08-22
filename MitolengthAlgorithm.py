@@ -11,7 +11,7 @@ import sys
 class Ui_Mainwindow(object):
     def setupUi(self, Mainwindow):
         Mainwindow.setObjectName("Mainwindow")
-        Mainwindow.resize(332, 448)
+        Mainwindow.resize(470, 584)
         self.verticalLayout = QtWidgets.QVBoxLayout(Mainwindow)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label = QtWidgets.QLabel(Mainwindow)
@@ -20,30 +20,39 @@ class Ui_Mainwindow(object):
         self.Openfile = QtWidgets.QPushButton(Mainwindow)
         self.Openfile.setObjectName("Openfile")
         self.verticalLayout.addWidget(self.Openfile)
+        self.label_10 = QtWidgets.QLabel(Mainwindow)
+        self.label_10.setObjectName("label_10")
+        self.verticalLayout.addWidget(self.label_10)
         self.label_7 = QtWidgets.QLabel(Mainwindow)
         self.label_7.setObjectName("label_7")
         self.verticalLayout.addWidget(self.label_7)
         self.czibutton = QtWidgets.QPushButton(Mainwindow)
         self.czibutton.setObjectName("czibutton")
         self.verticalLayout.addWidget(self.czibutton)
+        self.label_12 = QtWidgets.QLabel(Mainwindow)
+        self.label_12.setObjectName("label_12")
+        self.verticalLayout.addWidget(self.label_12)
         self.label_2 = QtWidgets.QLabel(Mainwindow)
         self.label_2.setObjectName("label_2")
         self.verticalLayout.addWidget(self.label_2)
         self.Openfolder = QtWidgets.QPushButton(Mainwindow)
         self.Openfolder.setObjectName("Openfolder")
         self.verticalLayout.addWidget(self.Openfolder)
+        self.label_13 = QtWidgets.QLabel(Mainwindow)
+        self.label_13.setObjectName("label_13")
+        self.verticalLayout.addWidget(self.label_13)
         self.label_3 = QtWidgets.QLabel(Mainwindow)
         self.label_3.setObjectName("label_3")
         self.verticalLayout.addWidget(self.label_3)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.Promslider = QtWidgets.QSlider(Mainwindow)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.Promslider.sizePolicy().hasHeightForWidth())
         self.Promslider.setSizePolicy(sizePolicy)
-        self.Promslider.setMinimumSize(QtCore.QSize(250, 0))
+        self.Promslider.setMinimumSize(QtCore.QSize(300, 0))
         self.Promslider.setMouseTracking(False)
         self.Promslider.setMaximum(9)
         self.Promslider.setPageStep(0)
@@ -69,12 +78,12 @@ class Ui_Mainwindow(object):
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.Frameslider = QtWidgets.QSlider(Mainwindow)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.Frameslider.sizePolicy().hasHeightForWidth())
         self.Frameslider.setSizePolicy(sizePolicy)
-        self.Frameslider.setMinimumSize(QtCore.QSize(250, 0))
+        self.Frameslider.setMinimumSize(QtCore.QSize(300, 0))
         self.Frameslider.setMaximum(500)
         self.Frameslider.setProperty("value", 60)
         self.Frameslider.setOrientation(QtCore.Qt.Horizontal)
@@ -100,9 +109,20 @@ class Ui_Mainwindow(object):
         self.label_5.setObjectName("label_5")
         self.hboxlayout.addWidget(self.label_5)
         self.Dropbox = QtWidgets.QCheckBox(Mainwindow)
+        self.Dropbox.setChecked(True)
         self.Dropbox.setObjectName("Dropbox")
         self.hboxlayout.addWidget(self.Dropbox, 0, QtCore.Qt.AlignRight)
         self.verticalLayout.addLayout(self.hboxlayout)
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        self.label_14 = QtWidgets.QLabel(Mainwindow)
+        self.label_14.setObjectName("label_14")
+        self.horizontalLayout_5.addWidget(self.label_14)
+        self.dropdaughter = QtWidgets.QCheckBox(Mainwindow)
+        self.dropdaughter.setChecked(True)
+        self.dropdaughter.setObjectName("dropdaughter")
+        self.horizontalLayout_5.addWidget(self.dropdaughter, 0, QtCore.Qt.AlignRight)
+        self.verticalLayout.addLayout(self.horizontalLayout_5)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.label_6 = QtWidgets.QLabel(Mainwindow)
@@ -115,6 +135,9 @@ class Ui_Mainwindow(object):
         self.OrderSpin.setObjectName("OrderSpin")
         self.horizontalLayout.addWidget(self.OrderSpin, 0, QtCore.Qt.AlignRight)
         self.verticalLayout.addLayout(self.horizontalLayout)
+        self.pushButton = QtWidgets.QPushButton(Mainwindow)
+        self.pushButton.setObjectName("pushButton")
+        self.verticalLayout.addWidget(self.pushButton)
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.label_11 = QtWidgets.QLabel(Mainwindow)
@@ -135,6 +158,7 @@ class Ui_Mainwindow(object):
         self.czibutton.pressed.connect(self.openczi) # type: ignore
         self.Promslider.valueChanged['int'].connect(self.label_8.setNum) # type: ignore
         self.Frameslider.valueChanged['int'].connect(self.label_9.setNum) # type: ignore
+        self.pushButton.clicked.connect(self.preview) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(Mainwindow)
 
     def retranslateUi(self, Mainwindow):
@@ -143,23 +167,29 @@ class Ui_Mainwindow(object):
         self.label.setWhatsThis(_translate("Mainwindow", "This takes the \"export.csv\" file from Trackmate\'s Tracking data. Only csv file."))
         self.label.setText(_translate("Mainwindow", "Trackmate Output:"))
         self.Openfile.setText(_translate("Mainwindow", "Choose..."))
+        self.label_10.setText(_translate("Mainwindow", ">No files selected<"))
         self.label_7.setWhatsThis(_translate("Mainwindow", "This takes the czi file from Zeiss imaging and extracts some metadata from it. Only czi file."))
         self.label_7.setText(_translate("Mainwindow", "Czi File:"))
         self.czibutton.setText(_translate("Mainwindow", "Choose..."))
+        self.label_12.setText(_translate("Mainwindow", ">No files selected<"))
         self.label_2.setWhatsThis(_translate("Mainwindow", "This specifies the location you want to save the results at."))
         self.label_2.setText(_translate("Mainwindow", "Save folder location:"))
         self.Openfolder.setText(_translate("Mainwindow", "Save As..."))
+        self.label_13.setText(_translate("Mainwindow", ">No location selected<"))
         self.label_3.setWhatsThis(_translate("Mainwindow", "This defines the threshold for the promience of mitosis identification. The higher, the more stringent the peak identification is. From 0 to 9."))
-        self.label_3.setText(_translate("Mainwindow", "Prominence:"))
+        self.label_3.setText(_translate("Mainwindow", "Prominence (Default=2):"))
         self.label_8.setText(_translate("Mainwindow", "2"))
         self.label_4.setWhatsThis(_translate("Mainwindow", "This defines the minimum expected frames between two mitotic peaks. Please specify according to your sampling interval."))
-        self.label_4.setText(_translate("Mainwindow", "Minimum frame number between mitosis:"))
+        self.label_4.setText(_translate("Mainwindow", "Minimum period between mitosis (Default=60):"))
         self.label_9.setText(_translate("Mainwindow", "60"))
         self.label_5.setWhatsThis(_translate("Mainwindow", "This button controls whether to drop cells that has come in contact with the margins of the field of view."))
-        self.label_5.setText(_translate("Mainwindow", "Drop marginal cells?"))
-        self.Dropbox.setText(_translate("Mainwindow", "Drop"))
+        self.label_5.setText(_translate("Mainwindow", "Exclude cells at the margins"))
+        self.Dropbox.setText(_translate("Mainwindow", "Exclude"))
+        self.label_14.setText(_translate("Mainwindow", "Exclude one of the daughter cell:"))
+        self.dropdaughter.setText(_translate("Mainwindow", "Exclude"))
         self.label_6.setWhatsThis(_translate("Mainwindow", "<html><head/><body><p>Frequency of the butterworth. The stronger the frequency, the higher the cutoff frequency. Usually lower means more smoothening. From 1 to 10.</p></body></html>"))
-        self.label_6.setText(_translate("Mainwindow", "Cutoff Frequency of Butterworth:"))
+        self.label_6.setText(_translate("Mainwindow", "Smoothing power (Default 4):"))
+        self.pushButton.setText(_translate("Mainwindow", "Preview smoothening"))
         self.label_11.setText(_translate("Mainwindow", "©Poon Lab"))
 
     def openfile(self):
@@ -167,18 +197,42 @@ class Ui_Mainwindow(object):
         if self.filepath:
             # do something with the selected file
             print("Selected file:", self.filepath)
+            self.label_10.setText(self.filepath)
 
     def openfolder(self):
         self.savepath,_ = QtWidgets.QFileDialog.getSaveFileName(None, caption="Save As...", filter="Csv Files (*.csv);;All Files (*)")
         if self.savepath:
             # do something with the selected file
             print("Selected file:", self.savepath)
+            self.label_13.setText(self.savepath)
 
     def openczi(self):
         self.czipath,_ = QtWidgets.QFileDialog.getOpenFileName(None, caption="Open Czi File", filter="Czi Files (*.czi);;All Files (*)")
         if self.czipath:
             # do something with the selected file
             print("Selected file:", self.czipath)
+            self.label_12.setText(self.czipath)
+
+    def butter_lowpass_filtfilt(self,data,fre,order=8):
+        b,a = butter(order,fre,"lowpass",analog=False)
+        output = filtfilt(b,a,data,axis=0)
+        return output
+    
+    def preview(self):
+        try:
+            if self.filepath:
+                dfp=pd.read_csv(self.filepath,low_memory=False)
+                dfp.drop(index = dfp.index[0:3],axis=0,inplace=True)
+                newdfp=dfp[dfp['TRACK_ID']=='0']
+                newdfpp=newdfp[['FRAME','STD_INTENSITY_CH1']].sort_values(by='FRAME',ascending=True)
+                xp = newdfpp.STD_INTENSITY_CH1.values.astype(float)
+                filtxp=self.butter_lowpass_filtfilt(xp,fre=ui.OrderSpin.value()/10)
+                plt.plot(xp,label='raw',color='blue')
+                plt.plot(filtxp,label='smoothened',color='red')
+                plt.legend()
+                plt.show()
+        except:
+            QtWidgets.QMessageBox.warning(None, 'Error', 'No csv import selected!')
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
@@ -239,7 +293,7 @@ if ui.Dropbox.isChecked():
 ind=0
 file = open(ui.savepath,'a',newline='')
 writer=csv.writer(file)
-head=['Index','TrackID','#splits','Mitotic Start','Mitotic End']
+head=['Index','TrackID','Interphase apoptosis','mitotic entry','anaphase onset','mitotic apoptosis','mitotic slippage','multipolar division','fusion','post mitoitc Apoptosis','second mitotic entry','second anaphase onset','second anaphase onset','second post mitotic apoptosis','#splits']
 writer.writerow(head)
 file.close()
 
@@ -257,31 +311,37 @@ for id in df.index.unique():
     #Smoothening the curve by filtfilt
     yy=butter_lowpass_filtfilt(x,fre=ui.OrderSpin.value()/10)
     #find peaks and threshold
-    peaks,_ = find_peaks(yy,distance=ui.Frameslider.value(),prominence=ui.Promslider.value())
-    peaks = list(idd + min(newdf['FRAME']) for idd in peaks)
+    peaks = find_peaks(yy,distance=ui.Frameslider.value(),prominence=ui.Promslider.value())[0]
+    
+    #Dropping Daughter cells
+    if ui.dropdaughter.isChecked() is True:
+        if min(newdf["FRAME"])!=0 or max(newdf["FRAME"])<140:
+            continue
     
     #give up if no peaks identified
-    if not peaks:
-            continue
+    if not list(peaks):
+        file =open(ui.savepath,'a',newline='')
+        writer=csv.writer(file)
+        ind=ind+1
+        Append=[[str(ind),str(id),'','','','','','','','','','','','','0']]
+        writer.writerows(Append)    
+        continue
 
     #Find local maximum with smoothened curve
     local_minima = detect_local_minima_before_peaks(x, peaks)
 
-    '''plt.plot(x,color='blue',label='Raw data')
-    plt.plot(yy,color='red',label='Filtered')
-    plt.plot(peaks,yy[peaks],'o',color='red',label='peaks')
-    #plt.plot(local_minima,x[local_minima],'x',label='local minimum')
-    plt.title("Standard Deviation of Track: "+str(id))
-    plt.xlabel('Frames')
-    plt.ylabel('Standard Deviation')
-    plt.legend()
-    plt.show()'''
+    #fit frames
+    peaks = list(idd + min(newdf['FRAME']) for idd in peaks)
+    local_minima = list((idd[0] + min(newdf['FRAME']),idd[1] + min(newdf['FRAME'])) for idd in local_minima)
 
-    for (start,peakss) in local_minima:
-        #Excel output
-        file =open(ui.savepath,'a',newline='')
-        writer=csv.writer(file)
-        ind=ind+1
-        Append=[[str(ind),str(id),str(len(peaks)),str(start),str(peakss)]]
+    #Excel output
+    file =open(ui.savepath,'a',newline='')
+    writer=csv.writer(file)
+    ind=ind+1
+    if len(local_minima)==1:
+        Append=[[str(ind),str(id),'',str(local_minima[0][0]),str(local_minima[0][1]),'','','','','','','','','',len(local_minima)]]
         writer.writerows(Append)
-        file.close()
+    elif len(local_minima)==2:
+        Append=[[str(ind),str(id),'',str(local_minima[0][0]),str(local_minima[0][1]),'','','','','',str(local_minima[1][0]),str(local_minima[1][1]),'','',len(local_minima)]]
+        writer.writerows(Append)
+    file.close()

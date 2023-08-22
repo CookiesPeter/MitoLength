@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>332</width>
-    <height>448</height>
+    <width>470</width>
+    <height>584</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,6 +32,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>&gt;No files selected&lt;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="label_7">
      <property name="whatsThis">
       <string>This takes the czi file from Zeiss imaging and extracts some metadata from it. Only czi file.</string>
@@ -45,6 +52,13 @@
     <widget class="QPushButton" name="czibutton">
      <property name="text">
       <string>Choose...</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_12">
+     <property name="text">
+      <string>&gt;No files selected&lt;</string>
      </property>
     </widget>
    </item>
@@ -66,12 +80,19 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="label_13">
+     <property name="text">
+      <string>&gt;No location selected&lt;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="label_3">
      <property name="whatsThis">
       <string>This defines the threshold for the promience of mitosis identification. The higher, the more stringent the peak identification is. From 0 to 9.</string>
      </property>
      <property name="text">
-      <string>Prominence:</string>
+      <string>Prominence (Default=2):</string>
      </property>
     </widget>
    </item>
@@ -80,14 +101,14 @@
      <item>
       <widget class="QSlider" name="Promslider">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="minimumSize">
         <size>
-         <width>250</width>
+         <width>300</width>
          <height>0</height>
         </size>
        </property>
@@ -141,7 +162,7 @@
       <string>This defines the minimum expected frames between two mitotic peaks. Please specify according to your sampling interval.</string>
      </property>
      <property name="text">
-      <string>Minimum frame number between mitosis:</string>
+      <string>Minimum period between mitosis (Default=60):</string>
      </property>
     </widget>
    </item>
@@ -150,14 +171,14 @@
      <item>
       <widget class="QSlider" name="Frameslider">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="minimumSize">
         <size>
-         <width>250</width>
+         <width>300</width>
          <height>0</height>
         </size>
        </property>
@@ -219,14 +240,38 @@
         <string>This button controls whether to drop cells that has come in contact with the margins of the field of view.</string>
        </property>
        <property name="text">
-        <string>Drop marginal cells?</string>
+        <string>Exclude cells at the margins</string>
        </property>
       </widget>
      </item>
      <item alignment="Qt::AlignRight">
       <widget class="QCheckBox" name="Dropbox">
        <property name="text">
-        <string>Drop</string>
+        <string>Exclude</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLabel" name="label_14">
+       <property name="text">
+        <string>Exclude one of the daughter cell:</string>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignRight">
+      <widget class="QCheckBox" name="dropdaughter">
+       <property name="text">
+        <string>Exclude</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -240,7 +285,7 @@
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Frequency of the butterworth. The stronger the frequency, the higher the cutoff frequency. Usually lower means more smoothening. From 1 to 10.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
-        <string>Cutoff Frequency of Butterworth:</string>
+        <string>Smoothing power (Default 4):</string>
        </property>
       </widget>
      </item>
@@ -258,6 +303,13 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>Preview smoothening</string>
+     </property>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -282,9 +334,7 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="icon.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
@@ -293,8 +343,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>242</x>
-     <y>427</y>
+     <x>342</x>
+     <y>535</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -309,8 +359,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>273</x>
-     <y>427</y>
+     <x>342</x>
+     <y>535</y>
     </hint>
     <hint type="destinationlabel">
      <x>285</x>
@@ -341,8 +391,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>240</x>
-     <y>197</y>
+     <x>252</x>
+     <y>245</y>
     </hint>
     <hint type="destinationlabel">
      <x>285</x>
@@ -357,8 +407,8 @@
    <slot>toggledrop()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>273</x>
-     <y>344</y>
+     <x>343</x>
+     <y>420</y>
     </hint>
     <hint type="destinationlabel">
      <x>158</x>
@@ -373,12 +423,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>272</x>
-     <y>378</y>
+     <x>342</x>
+     <y>454</y>
     </hint>
     <hint type="destinationlabel">
-     <x>272</x>
-     <y>378</y>
+     <x>342</x>
+     <y>454</y>
     </hint>
    </hints>
   </connection>
@@ -389,12 +439,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>254</y>
+     <x>111</x>
+     <y>327</y>
     </hint>
     <hint type="destinationlabel">
-     <x>132</x>
-     <y>254</y>
+     <x>145</x>
+     <y>327</y>
     </hint>
    </hints>
   </connection>
@@ -405,12 +455,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>58</x>
-     <y>314</y>
+     <x>71</x>
+     <y>389</y>
     </hint>
     <hint type="destinationlabel">
-     <x>41</x>
-     <y>314</y>
+     <x>54</x>
+     <y>389</y>
     </hint>
    </hints>
   </connection>
@@ -421,8 +471,8 @@
    <slot>openczi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>132</x>
-     <y>118</y>
+     <x>144</x>
+     <y>157</y>
     </hint>
     <hint type="destinationlabel">
      <x>280</x>
@@ -437,12 +487,12 @@
    <slot>setNum(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>255</y>
+     <x>65</x>
+     <y>327</y>
     </hint>
     <hint type="destinationlabel">
-     <x>304</x>
-     <y>262</y>
+     <x>342</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -453,12 +503,76 @@
    <slot>setNum(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>191</x>
-     <y>307</y>
+     <x>204</x>
+     <y>389</y>
     </hint>
     <hint type="destinationlabel">
-     <x>304</x>
-     <y>326</y>
+     <x>342</x>
+     <y>386</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Openfile</sender>
+   <signal>clicked()</signal>
+   <receiver>label_10</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>116</x>
+     <y>67</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>106</x>
+     <y>83</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>czibutton</sender>
+   <signal>clicked()</signal>
+   <receiver>label_12</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>76</x>
+     <y>149</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>61</x>
+     <y>170</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Openfolder</sender>
+   <signal>clicked()</signal>
+   <receiver>label_13</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>68</x>
+     <y>234</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>61</x>
+     <y>253</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Mainwindow</receiver>
+   <slot>preview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>172</x>
+     <y>483</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>6</x>
+     <y>479</y>
     </hint>
    </hints>
   </connection>
@@ -468,5 +582,6 @@
   <slot>openfolder()</slot>
   <slot>openczi()</slot>
   <slot>toggledrop()</slot>
+  <slot>preview()</slot>
  </slots>
 </ui>

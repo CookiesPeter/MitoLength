@@ -49,8 +49,8 @@ def butter_lowpass_filtfilt(data,fre,order=8):
     return output
 
 #import files
-czi = "/Users/peterfu/Desktop/MitoLength/Optimization Results/MitosisOptimization/Optimization#1/raw data and manual counted/Test data.czi"
-export = "/Users/peterfu/Desktop/MitoLength/Optimization Results/MitosisOptimization/Optimization#1/export.csv"
+czi = "/Users/peterfu/Desktop/MitoLength/Optimization Results/Interphase Apoptosis/A01 /PF_LK_LCI220921-1_AcquisitionBlock1_pt1-Scene-001-P2-A01.czi"
+export = "/Users/peterfu/Desktop/MitoLength/Optimization Results/Interphase Apoptosis/A01 /A01 P2.csv"
 xml_metadata = cz.CziFile(czi).metadata()
 df=pd.read_csv(export,low_memory=False)
 
@@ -80,10 +80,10 @@ df.POSITION_Y = df.POSITION_Y.astype(float)
 
 #set bound
 bound = pixel_size_in_microns-10
-df.drop(df[df.POSITION_X < 10].index,axis=0,inplace=True)
+'''df.drop(df[df.POSITION_X < 10].index,axis=0,inplace=True)
 df.drop(df[df.POSITION_X > bound].index,axis=0,inplace=True)
 df.drop(df[df.POSITION_Y < 10].index,axis=0,inplace=True)
-df.drop(df[df.POSITION_Y > bound].index,axis=0,inplace=True)
+df.drop(df[df.POSITION_Y > bound].index,axis=0,inplace=True)'''
 
 #Search unique TRACK ID
 for id in df.index.unique():
@@ -118,16 +118,21 @@ for id in df.index.unique():
     except:
         continue
 
+    #fit frames
+    peaks = list(idd + min(newdf['FRAME']) for idd in peaks)
+    local_minima = list(idd + min(newdf['FRAME']) for idd in local_minima)
+
     #plotgraph
-    #plt.plot(x,label="raw",color="blue")
-    plt.plot(yy,label="filtfilt",color="green")
+    plt.plot(x,label="raw",color="blue")
+    plt.plot(yy,label="Smoothened",color="green")
     plt.plot(local_minima,yy[local_minima],marker='x',label='v1_start')
     plt.plot(peaks,yy[peaks],marker='o',label='v1_peak')
     #plt.plot(dydx,label='dydx',color='grey')
     plt.plot(butterdydx,label='smooth dydx',color='red')
     plt.plot(dydxpeaks,butterdydx[dydxpeaks],'*',label='v2_peaks')
     plt.plot(apoplist,np.zeros(len(apoplist)),marker='P',label='apoptosis',markersize=20)
-    plt.plot(peakk,butterdydx[peakk],marker='D',label='v2_midpoint')
+    for peakkk in peakk:
+        plt.plot(peakkk,butterdydx[peakkk],marker='D',label='v2_midpoint')
     for bound in bounds:
         plt.plot(bound[0],0,marker='^',label='v2_start',markersize=10)
 
@@ -135,5 +140,9 @@ for id in df.index.unique():
     plt.axhline()
     plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
     plt.tight_layout()
-    plt.savefig("Track: "+str(id))
-    plt.close()
+    #plt.savefig("Track: "+str(id))
+    #plt.close()
+    #plt.title("Standard Deviation of an asynchronous HeLa cell")
+    #plt.xlabel("Frame")
+    #plt.ylabel("Standard Deviation (Normalized)")
+    plt.show()
