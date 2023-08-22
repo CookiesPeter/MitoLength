@@ -303,11 +303,15 @@ for id in df.index.unique():
     #obtain Frame, Std data, sort from a specific track ID
     newdf=df.loc[id,['FRAME','STD_INTENSITY_CH1']].sort_values(by='FRAME',ascending=True)
     x = newdf.STD_INTENSITY_CH1.values.astype(float)
+    t=newdf.'FRAME'.astype(int)
 
     #Screen for tracks with length more than 50 frames
     if len(x) <50:
          continue
-    
+
+    #Dropping Daughter cells
+    if min(t)!=0 or max(t)<140:
+        continue
     #Smoothening the curve by filtfilt
     yy=butter_lowpass_filtfilt(x,fre=ui.OrderSpin.value()/10)
     #find peaks and threshold
