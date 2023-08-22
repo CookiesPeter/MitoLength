@@ -266,7 +266,14 @@ for id in df.index.unique():
     
     #give up if no peaks identified
     if not peaks:
-            continue
+        #Excel output
+        file =open(ui.savepath,'a',newline='')
+        writer=csv.writer(file)
+        ind=ind+1
+        Append=[[str(ind),str(id),str(' '),str(' '),str(' ')]]
+        writer.writerows(Append)
+        file.close()
+        continue
 
     #Find local maximum with smoothened curve
     local_minima = detect_local_minima_before_peaks(x, peaks)
