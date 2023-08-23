@@ -49,8 +49,8 @@ def butter_lowpass_filtfilt(data,fre,order=8):
     return output
 
 #import files
-czi = "/Users/peterfu/Desktop/MitoLength/Optimization Results/Interphase Apoptosis/A01 /PF_LK_LCI220921-1_AcquisitionBlock1_pt1-Scene-001-P2-A01.czi"
-export = "/Users/peterfu/Desktop/MitoLength/Optimization Results/Interphase Apoptosis/A01 /A01 P2.csv"
+czi = "/Users/peterfu/Desktop/MitoLength/Optimization Results/Mitosis_normal/Optimization#1/raw data and manual counted/Test data.czi"
+export = "/Users/peterfu/Desktop/MitoLength/Optimization Results/Mitosis_normal/Optimization#1/export.csv"
 xml_metadata = cz.CziFile(czi).metadata()
 df=pd.read_csv(export,low_memory=False)
 
@@ -98,12 +98,12 @@ for id in df.index.unique():
         continue
     
     #Smoothening the curve by filtfilt
-    yy=butter_lowpass_filtfilt(x,fre=0.1)
-    yy=yy/max(yy)
-    x=x/max(x)
+    yy=butter_lowpass_filtfilt(x,fre=0.5)
+    #yy=yy/max(yy)
+    #x=x/max(x)
     
     #find peaks and threshold
-    peaks = list(find_peaks(yy,distance=60,prominence=0.4)[0])
+    peaks = list(find_peaks(yy,distance=60,prominence=100)[0])
     
     #give up if no peaks identified
     if not peaks:
@@ -113,22 +113,22 @@ for id in df.index.unique():
     local_minima = detect_local_minima_before_peaks(yy, peaks)
 
     #getbounds
-    try:
+    '''try:
         apoplist,bounds,peakk,butterdydx,dydxpeaks = detect_deltay_neighbourpeak(yy)
     except:
-        continue
+        continue'''
 
     #fit frames
-    peaks = list(idd + min(newdf['FRAME']) for idd in peaks)
-    local_minima = list(idd + min(newdf['FRAME']) for idd in local_minima)
+    #peaks = list(idd + min(newdf['FRAME']) for idd in peaks)
+    #local_minima = list(idd + min(newdf['FRAME']) for idd in local_minima)
 
     #plotgraph
-    plt.plot(x,label="raw",color="blue")
-    plt.plot(yy,label="Smoothened",color="green")
-    plt.plot(local_minima,yy[local_minima],marker='x',label='v1_start')
-    plt.plot(peaks,yy[peaks],marker='o',label='v1_peak')
-    #plt.plot(dydx,label='dydx',color='grey')
-    plt.plot(butterdydx,label='smooth dydx',color='red')
+    plt.plot(x,label="Raw",color="blue")
+    plt.plot(yy,label="Smoothened",color="red")
+    plt.scatter(local_minima,yy[local_minima],marker='x',label='Mitosis Start',color='black')
+    plt.scatter(peaks,yy[peaks],marker='o',label='Mitosis End',color='green')
+    print(local_minima,peaks)
+    '''plt.plot(butterdydx,label='smooth dydx',color='red')
     plt.plot(dydxpeaks,butterdydx[dydxpeaks],'*',label='v2_peaks')
     plt.plot(apoplist,np.zeros(len(apoplist)),marker='P',label='apoptosis',markersize=20)
     for peakkk in peakk:
@@ -139,10 +139,11 @@ for id in df.index.unique():
         plt.plot(bound[1],0,marker='v',label='v2_upbound',markersize=10)
     plt.axhline()
     plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
-    plt.tight_layout()
-    #plt.savefig("Track: "+str(id))
-    #plt.close()
-    #plt.title("Standard Deviation of an asynchronous HeLa cell")
-    #plt.xlabel("Frame")
-    #plt.ylabel("Standard Deviation (Normalized)")
+    plt.tight_layout()'''
+    plt.title("Standard Deviation of an asynchronous HeLa cell")
+    plt.legend()
+    plt.xlabel("Frame")
+    plt.ylabel("Standard Deviation (Normalized)")
+    plt.savefig("Track: "+str(id)+".pdf")
+    plt.close()
     plt.show()

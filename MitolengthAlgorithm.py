@@ -185,6 +185,7 @@ class Ui_Mainwindow(object):
         self.label_5.setWhatsThis(_translate("Mainwindow", "This button controls whether to drop cells that has come in contact with the margins of the field of view."))
         self.label_5.setText(_translate("Mainwindow", "Exclude cells at the margins"))
         self.Dropbox.setText(_translate("Mainwindow", "Exclude"))
+        self.label_14.setWhatsThis(_translate("Mainwindow","Choose whether to keep only one of the daughter cells from a cell division."))
         self.label_14.setText(_translate("Mainwindow", "Exclude one of the daughter cell:"))
         self.dropdaughter.setText(_translate("Mainwindow", "Exclude"))
         self.label_6.setWhatsThis(_translate("Mainwindow", "<html><head/><body><p>Frequency of the butterworth. The stronger the frequency, the higher the cutoff frequency. Usually lower means more smoothening. From 1 to 10.</p></body></html>"))
@@ -303,15 +304,15 @@ for id in df.index.unique():
     #obtain Frame, Std data, sort from a specific track ID
     newdf=df.loc[id,['FRAME','STD_INTENSITY_CH1']].sort_values(by='FRAME',ascending=True)
     x = newdf.STD_INTENSITY_CH1.values.astype(float)
-    t=newdf.'FRAME'.astype(int)
 
     #Screen for tracks with length more than 50 frames
     if len(x) <50:
          continue
 
     #Dropping Daughter cells
-    if min(t)!=0 or max(t)<140:
+    if min(newdf['FRAME'])!=0 or max(newdf['FRAME'])<140:
         continue
+    
     #Smoothening the curve by filtfilt
     yy=butter_lowpass_filtfilt(x,fre=ui.OrderSpin.value()/10)
     #find peaks and threshold
