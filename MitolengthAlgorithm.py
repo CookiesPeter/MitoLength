@@ -315,6 +315,8 @@ for id in df.index.unique():
     
     #Smoothening the curve by filtfilt
     yy=butter_lowpass_filtfilt(x,fre=ui.OrderSpin.value()/10)
+    x=x/max(x)
+    yy=yy/max(yy)
     #find peaks and threshold
     peaks = find_peaks(yy,distance=ui.Frameslider.value(),prominence=ui.Promslider.value())[0]
     
